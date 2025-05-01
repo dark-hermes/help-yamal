@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 61.98 104.96">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #a06f2a;
+      }
+
+      .cls-2 {
+        fill: #d69737;
+      }
+
+      .cls-3 {
+        fill: #b6812c;
+      }
+
+      .cls-4 {
+        fill: #8a6226;
+      }
+    </style>
+  </defs>
+  <g id="Light_brown_chair" data-name="Light brown chair">
+    <rect class="cls-4" x="51.61" y="62.38" width="5.53" height="42.21"/>
+    <rect class="cls-4" x="6.52" y="62.75" width="5.53" height="42.21"/>
+    <rect class="cls-4" x="46.17" y="62.38" width="4.01" height="30.6"/>
+    <rect class="cls-4" x="13.48" y="62.65" width="4.01" height="30.6"/>
+    <rect class="cls-1" y="58.14" width="61.98" height="8.48"/>
+    <polygon class="cls-2" points="61.98 58.16 0 58.16 8.4 48.74 53.58 48.74 61.98 58.16"/>
+    <rect class="cls-3" x="51.61" y="17.89" width="5.53" height="42.21"/>
+    <rect class="cls-3" x="6.52" y="18.26" width="5.53" height="42.21"/>
+    <rect class="cls-1" width="61.98" height="25.22"/>
+  </g>
+</svg>

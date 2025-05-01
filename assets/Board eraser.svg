@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 31.77 10.88">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#linear-gradient);
+      }
+    </style>
+    <linearGradient id="linear-gradient" x1="15.89" y1="10.88" x2="15.89" y2="6.09" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fcdf4a"/>
+      <stop offset=".11" stop-color="#fcd94e"/>
+      <stop offset=".66" stop-color="#fec05f"/>
+      <stop offset="1" stop-color="#ffb866"/>
+    </linearGradient>
+  </defs>
+  <g id="Board_eraser" data-name="Board eraser">
+    <g>
+      <rect class="cls-1" y="6.09" width="31.77" height="4.79"/>
+      <image width="33" height="7" transform="translate(-.6 -.67)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACEAAAAHCAYAAACGESREAAAACXBIWXMAAAsSAAALEgHS3X78AAABzElEQVQokV1SS27VQBCsmemx/awICQkCSkJ2rNhzD9hxCZQdx2DBMbLJGVhwCxYsonwhSEg8zz+qth29ZKx2j2fcXTVVY7Azvnx614a+xzgOGDcbjOMGQ99hGHpw3XvR6MTDWANrLaw1aLWhtqZ7MSbEGGGM0azfKSKljClMmKag8fnr9wds2SVRW51Buk7BNwr+hITMRAwJGKO51Ypa69zQWTQvKKXCOgsnDtIEBgalZGSX4ZzdhX1M4vWL59jbGxVwGAbNXefRdQLnjJ7aGCgg2xQAZgEvtcyKLIQIWEpB5Xprul9rA5+n4xEJZdigP7NBiAFrWQgJnoS8R85ZFREvCDHCWae1lJmDVvCflBJSzmoJ59tpUlsYu+PBl5OPbxtlf3PwUoFu7/7h+OgVxAlEnBauwDkXBVoBeVIG2Xa9Ry0V/7fTYlHDdgraI4agpEOI+HV+jW9nP7WJvj68f9Yo+/Hhvt4HkvDC081xdf0Hhwf7cLwHzqq/5MCsHRSfRNiNKi6W1IKUyqzKqgyVWOZXt39x+uPOqB1zUcP5xW947/TEBCeRdX5xeaMkCLSIoCpwLiKqRIxZ7w37kQBzLiRRNNPiuNihNtEWAPeWtx8eDADlBwAAAABJRU5ErkJggg=="/>
+    </g>
+  </g>
+</svg>

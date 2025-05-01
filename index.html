@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Find the Object</title>
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+                background-color: #f0f0f0;
+            }
+            canvas {
+                display: block;
+                background: #fff;
+                margin: auto;
+            }
+            #ui {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                color: black;
+                font-family: sans-serif;
+            }
+            #itemList {
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="gameCanvas" width="1600" height="1000"></canvas>
+        <div id="ui">
+            <div id="dialogueBox"></div>
+            <div id="itemList"></div>
+            <div id="scoreDisplay">Score: 0</div>
+        </div>
+
+        <script>
+            const canvas = document.getElementById("gameCanvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const dialogueBox = document.getElementById("dialogueBox");
+            const itemListDisplay = document.getElementById("itemList");
+            const scoreDisplay = document.getElementById("scoreDisplay");
+
+            let gameState = "prologue";
+            let dialogueIndex = 0;
+            let startTime;
+            let score = 0;
+            let wrongClicks = 0;
+
+            const dialogues = [
+                "Hey! Can you help me find my stuff?",
+                "I lost a few things in the classroom.",
+                "Please find: Blue Book, Pencil, Ruler, Eraser, Watch.",
+            ];
+
+            const itemsToFind = [];
+
+            const furniture1 = [
+                {
+                    name: "White Board",
+                    x: 700,
+                    y: 370,
+                    w: 340,
+                    h: 190,
+                    img: new Image(),
+                    src: "assets/Whiteboard.svg",
+                },
+                // {
+                //     name: "Black Board",
+                //     x: 1000,
+                //     y: 370,
+                //     w: 360,
+                //     h: 190,
+                //     img: new Image(),
+                //     src: "assets/Blackboard.svg",
+                // },
+                {
+                    name: "Teacher's Desk",
+                    x: 1120,
+                    y: 510,
+                    w: 280,
+                    h: 190,
+                    img: new Image(),
+                    src: "assets/Teacher Table.svg",
+                },
+                {
+                    name: "Calendar",
+                    x: 590,
+                    y: 370,
+                    w: 96,
+                    h: 140,
+                    img: new Image(),
+                    src: "assets/Calendar.svg",
+                },
+                {
+                    name: "Globe",
+                    x: 450,
+                    y: 370,
+                    w: 60,
+                    h: 80,
+                    img: new Image(),
+                    src: "assets/globe.svg",
+                },
+                {
+                    name: "Bookshelf",
+                    x: 440,
+                    y: 448,
+                    w: 130,
+                    h: 210,
+                    img: new Image(),
+                    src: "assets/Bookshelf.svg",
+                },
+                {
+                    name: "Clock",
+                    x: 920,
+                    y: 270,
+                    w: 60,
+                    h: 60,
+                    img: new Image(),
+                    src: "assets/Clock.svg",
+                },
+                {
+                    name: "Table1",
+                    x: 320,
+                    y: 664,
+                    w: 230,
+                    h: 150,
+                    img: new Image(),
+                    src: "assets/YC_L.svg",
+                },
+                {
+                    name: "Chair1",
+                    x: 380,
+                    y: 670,
+                    w: 110,
+                    h: 170,
+                    img: new Image(),
+                    src: "assets/Light brown chair.svg",
+                },
+
+                {
+                    name: "Table2",
+                    x: 660,
+                    y: 664,
+                    w: 230,
+                    h: 150,
+                    img: new Image(),
+                    src: "assets/YC_LC.svg",
+                },
+                {
+                    name: "Chair2",
+                    x: 726,
+                    y: 670,
+                    w: 110,
+                    h: 170,
+                    img: new Image(),
+                    src: "assets/Light brown chair.svg",
+                },
+
+                {
+                    name: "Table3",
+                    x: 1000,
+                    y: 664,
+                    w: 230,
+                    h: 150,
+                    img: new Image(),
+                    src: "assets/YC_RC.svg",
+                },
+                {
+                    name: "Chair3",
+                    x: 1060,
+                    y: 670,
+                    w: 110,
+                    h: 170,
+                    img: new Image(),
+                    src: "assets/Light brown chair.svg",
+                },
+
+                {
+                    name: "Table4",
+                    x: 1340,
+                    y: 664,
+                    w: 230,
+                    h: 150,
+                    img: new Image(),
+                    src: "assets/YC_R.svg",
+                },
+                {
+                    name: "Chair4",
+                    x: 1400,
+                    y: 670,
+                    w: 110,
+                    h: 170,
+                    img: new Image(),
+                    src: "assets/Light brown chair.svg",
+                },
+            ];
+
+            const furniture2 = [
+                {
+                    name: "Table5",
+                    x: 240,
+                    y: 800,
+                    w: 250,
+                    h: 170,
+                    img: new Image(),
+                    src: "assets/YC_L.svg",
+                },
+                {
+                    name: "Chair5",
+                    x: 300,
+                    y: 810,
+                    w: 130,
+                    h: 190,
+                    img: new Image(),
+                    src: "assets/Light brown chair.svg",
+                },
+
+                {
+                    name: "Table6",
+                    x: 630,
+                    y: 800,
+                    w: 250,
+                    h: 170,
+                    img: new Image(),
+                    src: "assets/YC_LC.svg",
+                },
+                {
+                    name: "Chair6",
+                    x: 696,
+                    y: 810,
+                    w: 130,
+                    h: 190,
+                    img: new Image(),
+                    src: "assets/Light brown chair.svg",
+                },
+
+                {
+                    name: "Table7",
+                    x: 1010,
+                    y: 800,
+                    w: 250,
+                    h: 170,
+                    img: new Image(),
+                    src: "assets/YC_RC.svg",
+                },
+                {
+                    name: "Chair7",
+                    x: 1070,
+                    y: 810,
+                    w: 130,
+                    h: 190,
+                    img: new Image(),
+                    src: "assets/Light brown chair.svg",
+                },
+
+                {
+                    name: "Table8",
+                    x: 1400,
+                    y: 800,
+                    w: 250,
+                    h: 170,
+                    img: new Image(),
+                    src: "assets/YC_R.svg",
+                },
+                {
+                    name: "Chair8",
+                    x: 1464,
+                    y: 810,
+                    w: 130,
+                    h: 190,
+                    img: new Image(),
+                    src: "assets/Light brown chair.svg",
+                },
+            ];
+
+            itemsToFind.forEach((item) => (item.img.src = item.src));
+            furniture1.forEach((f) => (f.img.src = f.src));
+            furniture2.forEach((f) => (f.img.src = f.src));
+
+            const bgImage = new Image();
+            bgImage.src = "assets/classroom.png";
+
+            function drawScene() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+
+                furniture1.forEach((f) => {
+                    ctx.drawImage(f.img, f.x, f.y, f.w, f.h);
+                });
+
+                furniture2.forEach((f) => {
+                    ctx.drawImage(f.img, f.x, f.y, f.w, f.h);
+                });
+
+                if (gameState === "playing") {
+                    itemsToFind.forEach((item) => {
+                        if (!item.found) {
+                            ctx.drawImage(
+                                item.img,
+                                item.x,
+                                item.y,
+                                item.w,
+                                item.h
+                            );
+                        } else {
+                            ctx.strokeStyle = "green";
+                            ctx.lineWidth = 3;
+                            ctx.strokeRect(item.x, item.y, item.w, item.h);
+                        }
+                    });
+                }
+            }
+
+            function updateDialogue() {
+                if (dialogueIndex < dialogues.length) {
+                    dialogueBox.textContent = dialogues[dialogueIndex++];
+                } else {
+                    startGame();
+                }
+            }
+
+            function startGame() {
+                gameState = "playing";
+                dialogueBox.textContent = "";
+                itemListDisplay.innerHTML =
+                    "Find: " + itemsToFind.map((i) => i.name).join(", ");
+                startTime = Date.now();
+                drawScene();
+            }
+
+            canvas.addEventListener("click", (e) => {
+                if (gameState !== "playing") return;
+                const rect = canvas.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+
+                let foundItem = false;
+                itemsToFind.forEach((item) => {
+                    if (
+                        !item.found &&
+                        clickX >= item.x &&
+                        clickX <= item.x + item.w &&
+                        clickY >= item.y &&
+                        clickY <= item.y + item.h
+                    ) {
+                        item.found = true;
+                        foundItem = true;
+                    }
+                });
+
+                if (foundItem) {
+                    drawScene();
+                    if (itemsToFind.every((item) => item.found)) {
+                        endGame();
+                    }
+                } else {
+                    wrongClicks++;
+                }
+            });
+
+            function endGame() {
+                const timeTaken = (Date.now() - startTime) / 1000;
+                score = Math.max(
+                    1000 -
+                        Math.floor(timeTaken * 10) -
+                        (wrongClicks > 2 ? (wrongClicks - 2) * 50 : 0),
+                    0
+                );
+                scoreDisplay.textContent = "Score: " + score;
+                gameState = "ended";
+                dialogueBox.textContent = "Thanks for your help!";
+            }
+
+            canvas.addEventListener("mousedown", () => {
+                if (gameState === "prologue") {
+                    updateDialogue();
+                }
+            });
+
+            bgImage.onload = () => drawScene();
+        </script>
+    </body>
+</html>

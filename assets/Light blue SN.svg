@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 94.36">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #4a95d1;
+      }
+
+      .cls-2 {
+        fill: #38709d;
+      }
+
+      .cls-3 {
+        fill: #336891;
+      }
+
+      .cls-4 {
+        fill: #6eaada;
+      }
+    </style>
+  </defs>
+  <g id="Light_blue_SN" data-name="Light blue SN">
+    <polygon class="cls-4" points=".37 13.46 6.05 7.52 77.63 .36 100.5 75.85 92.74 79.84 21.69 93.97 .37 13.46"/>
+    <polygon class="cls-3" points="28.18 90.26 21.45 94.36 92.85 80.15 100.9 76.02 28.18 90.26"/>
+    <polygon class="cls-2" points="5.89 7.21 0 13.36 21.45 94.36 28.18 90.26 5.89 7.21"/>
+    <polygon class="cls-1" points="77.86 0 5.89 7.21 28.18 90.26 100.9 76.02 77.86 0"/>
+    <path class="cls-4" d="m77.86,0L5.89,7.21s12.91,48.12,29.39,73c25.44-1.77,57.07-9.92,72.72-14.24C88.11,40.1,77.86,0,77.86,0Z"/>
+  </g>
+</svg>

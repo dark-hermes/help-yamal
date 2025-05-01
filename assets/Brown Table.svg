@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 135.7 97.03">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #73462d;
+      }
+
+      .cls-2 {
+        fill: #a86644;
+      }
+
+      .cls-3 {
+        fill: #925a3b;
+      }
+
+      .cls-4 {
+        fill: #7b4b30;
+      }
+    </style>
+  </defs>
+  <g id="Brown_Table" data-name="Brown Table">
+    <g>
+      <rect class="cls-3" x="11.5" y="45.22" width="4.97" height="51.81"/>
+      <rect class="cls-1" x="26.9" y="26.33" width="4.97" height="51.81"/>
+    </g>
+    <g>
+      <rect class="cls-3" x="115.33" y="45.22" width="4.97" height="51.81"/>
+      <rect class="cls-1" x="99.93" y="26.33" width="4.97" height="51.81"/>
+    </g>
+    <rect class="cls-2" x="2.06" y="31.8" width="130.17" height="19.38"/>
+    <polygon class="cls-3" points="135.7 30.8 .07 30.8 18.45 0 117.32 0 135.7 30.8"/>
+    <rect class="cls-4" y="30.79" width="135.69" height="2.1"/>
+  </g>
+</svg>

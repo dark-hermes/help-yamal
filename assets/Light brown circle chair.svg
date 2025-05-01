@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 61.98 104.46">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #a06f2a;
+      }
+
+      .cls-2 {
+        fill: #d69737;
+      }
+
+      .cls-3 {
+        fill: #b6812c;
+      }
+
+      .cls-4 {
+        fill: #8a6226;
+      }
+    </style>
+  </defs>
+  <g id="Light_brown_circle_chair" data-name="Light brown circle chair">
+    <rect class="cls-4" x="51.61" y="61.88" width="5.53" height="42.21"/>
+    <rect class="cls-4" x="6.52" y="62.25" width="5.53" height="42.21"/>
+    <rect class="cls-4" x="46.17" y="61.88" width="4.01" height="30.6"/>
+    <rect class="cls-4" x="13.48" y="62.15" width="4.01" height="30.6"/>
+    <rect class="cls-1" y="57.64" width="61.98" height="8.48"/>
+    <polygon class="cls-2" points="61.98 57.66 0 57.66 8.4 48.23 53.58 48.23 61.98 57.66"/>
+    <rect class="cls-3" x="51.61" y="17.39" width="5.53" height="42.21"/>
+    <rect class="cls-3" x="6.52" y="17.76" width="5.53" height="42.21"/>
+    <ellipse class="cls-1" cx="30.99" cy="20.64" rx="30.82" ry="20.64"/>
+  </g>
+</svg>

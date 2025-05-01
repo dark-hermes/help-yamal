@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35.92 87.73">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #123589;
+      }
+
+      .cls-2 {
+        fill: #e2e2e2;
+      }
+
+      .cls-3 {
+        fill: #0c3799;
+      }
+
+      .cls-4 {
+        fill: #ccc;
+      }
+
+      .cls-5 {
+        fill: #dbdbdd;
+      }
+    </style>
+  </defs>
+  <g id="Cube_white_eraser" data-name="Cube white eraser">
+    <path class="cls-4" d="m35.92,68.38v4.76s0,.01,0,.02c-1.5,8.28-9.11,14.57-18.27,14.57h-6.22C5.12,87.73,0,82.88,0,76.89v-8.52h35.92Z"/>
+    <path class="cls-2" d="m16.58,82.59h-7.82c-4.84,0-8.77-3.92-8.77-8.77v-5.45h30.8c0,7.85-6.37,14.22-14.22,14.22Z"/>
+    <g>
+      <path class="cls-4" d="m9.13,0h15.91c6.01,0,10.88,4.88,10.88,10.88v6.83H5.12V4.01C5.12,1.8,6.92,0,9.13,0Z"/>
+      <g>
+        <rect x="22.72" y="8.32" width="8.08" height="60.05"/>
+        <rect class="cls-3" y="8.32" width="22.72" height="60.05"/>
+      </g>
+      <polygon class="cls-5" points="34.17 11.47 34.17 71.52 30.81 68.38 30.8 68.37 30.8 8.32 34.17 11.47"/>
+      <path class="cls-2" d="m2.75,0h23.44c2.54,0,4.61,2.07,4.61,4.61v3.71H0V2.75C0,1.23,1.23,0,2.75,0Z"/>
+      <polygon class="cls-1" points="35.92 13.12 35.92 73.16 35.92 73.16 34.17 71.52 34.17 11.47 35.92 13.12"/>
+    </g>
+  </g>
+</svg>
