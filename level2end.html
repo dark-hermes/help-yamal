@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Game Prologue</title>
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+                background-color: #f0f0f0;
+                font-family: Arial, sans-serif;
+            }
+            canvas {
+                display: block;
+                background: #fff;
+                margin: auto;
+                cursor: pointer;
+            }
+            #musicControl {
+                position: absolute;
+                bottom: 10px;
+                left: 10px;
+                background: rgba(255, 255, 255, 0.7);
+                padding: 5px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+            #dialogue-container {
+                position: absolute;
+                bottom: 50px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 100%;
+                max-width: 1400px;
+                background-color: rgba(255, 255, 255, 0.8);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                padding: 20px;
+                border-radius: 10px;
+                color: #333;
+                text-align: center;
+                z-index: 100;
+            }
+            #speaker {
+                font-weight: bold;
+                font-size: 2em;
+                margin-bottom: 10px;
+                color: #4CAF50;
+            }
+            #text {
+                margin-top: 10px;
+                font-size: 1.5em;
+                margin-bottom: 20px;
+                min-height: 60px;
+            }
+            #next-btn {
+                padding: 10px 20px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 1em;
+            }
+            #next-btn:hover {
+                background-color: #45a049;
+            }
+            #progress {
+                margin-top: 20px;
+                color: #aaa;
+            }
+            #character-image {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                max-height: 60vh;
+                z-index: 50;
+                transition: opacity 0.5s ease;
+            }
+            .fade-out {
+                opacity: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="gameCanvas"></canvas>
+        <div id="character-container"></div>
+        <div id="dialogue-container">
+            <div id="speaker"></div>
+            <div id="text"></div>
+            <button id="next-btn">Next</button>
+            <div id="progress"></div>
+        </div>
+        <div id="musicControl">🔈 Music: ON</div>
+
+        <!-- Audio elements for sound effects -->
+        <div id="audioContainer">
+            <audio id="clickSound" src="assets/audio/click.mp3" preload="auto"></audio>
+            <audio id="backgroundMusic" src="assets/audio/bgm.mp3" preload="auto" loop></audio>
+        </div>
+
+        <script>
+            // Canvas setup
+            const canvas = document.getElementById("gameCanvas");
+            const ctx = canvas.getContext("2d");
+            const clickSound = document.getElementById("clickSound");
+            const backgroundMusic = document.getElementById("backgroundMusic");
+            const musicControl = document.getElementById("musicControl");
+            
+            // Dialogue elements
+            const speakerElement = document.getElementById('speaker');
+            const textElement = document.getElementById('text');
+            const nextBtn = document.getElementById('next-btn');
+            const progressElement = document.getElementById('progress');
+            const dialogueContainer = document.getElementById('dialogue-container');
+            const characterContainer = document.getElementById('character-container');
+
+            // Game state
+            let allFurniture = [];
+            let bgImage = new Image();
+            let musicOn = true;
+            let currentDialogue = 0;
+            let dialogues = [];
+            let autoProgressTimer;
+            let currentCharacterImage = null;
+
+            // Initialize canvas size
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                drawScene();
+            }
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
+
+            // Play sound function
+            function playSound(sound) {
+                if (!musicOn) return;
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log("Sound playback prevented:", e));
+            }
+
+            // Background music control
+            function toggleMusic() {
+                musicOn = !musicOn;
+                if (musicOn) {
+                    backgroundMusic.play();
+                    musicControl.textContent = "🔈 Music: ON";
+                } else {
+                    backgroundMusic.pause();
+                    musicControl.textContent = "🔇 Music: OFF";
+                }
+            }
+
+            musicControl.addEventListener("click", toggleMusic);
+
+            // Start background music (after user interaction)
+            function startBackgroundMusic() {
+                if (musicOn) {
+                    backgroundMusic.volume = 0.3;
+                    backgroundMusic.loop = true;
+                    backgroundMusic.play().catch(e => {
+                        console.log("Background music playback prevented:", e);
+                    });
+                }
+            }
+
+            // Change character image with fade effect
+            function changeCharacterImage(src) {
+                if (currentCharacterImage) {
+                    // Fade out current image
+                    currentCharacterImage.classList.add('fade-out');
+                    
+                    // Remove after fade completes
+                    setTimeout(() => {
+                        characterContainer.removeChild(currentCharacterImage);
+                        createNewCharacterImage(src);
+                    }, 500);
+                } else {
+                    createNewCharacterImage(src);
+                }
+            }
+
+            function createNewCharacterImage(src) {
+                const img = document.createElement('img');
+                img.id = 'character-image';
+                img.src = src;
+                img.alt = 'Character';
+                img.style.opacity = '0';
+                
+                characterContainer.appendChild(img);
+                currentCharacterImage = img;
+                
+                // Fade in new image
+                setTimeout(() => {
+                    img.style.opacity = '1';
+                }, 50);
+            }
+
+            // Load game assets
+            function loadAssets() {
+                // First load the background and furniture
+                fetch("furniture.json")
+                    .then((response) => response.json())
+                    .then((data) => {
+                        allFurniture = data.furniture;
+
+                        // Load background image
+                        bgImage.src = "assets/classroom.png";
+                        bgImage.onload = () => {
+                            // Load furniture images
+                            allFurniture.forEach((item) => {
+                                item.img = new Image();
+                                item.img.src = item.src;
+                                item.img.onload = drawScene;
+                            });
+                            drawScene();
+                            
+                            // Then load the dialogues
+                            fetch("level2end.json")
+                                .then(response => response.json())
+                                .then(data => {
+                                    dialogues = data.dialogues;
+                                    showDialogue();
+                                })
+                                .catch(error => {
+                                    console.error('Error loading dialogues:', error);
+                                    // Skip to game if dialogues fail to load
+                                    setTimeout(() => {
+                                        window.location.href = 'level3.html';
+                                    }, 2000);
+                                });
+                        };
+                    })
+                    .catch((err) => {
+                        console.error("Failed to load furniture data:", err);
+                        // Even if furniture fails, try to show dialogues
+                        fetch("level2end.json")
+                            .then(response => response.json())
+                            .then(data => {
+                                dialogues = data.dialogues;
+                                showDialogue();
+                            })
+                            .catch(error => {
+                                console.error('Error loading dialogues:', error);
+                                // Skip to game if both fail
+                                setTimeout(() => {
+                                    window.location.href = 'level3.html';
+                                }, 2000);
+                            });
+                    });
+            }
+
+            function drawScene() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw background
+                if (bgImage.complete) {
+                    ctx.drawImage(
+                        bgImage,
+                        0, 0,
+                        canvas.width,
+                        canvas.height
+                    );
+                }
+
+                // Draw furniture
+                allFurniture.forEach((item) => {
+                    if (item.img && item.img.complete) {
+                        ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
+                    }
+                });
+            }
+
+            function showDialogue() {
+                if (currentDialogue >= dialogues.length) {
+                    // All dialogues shown, redirect to game
+                    window.location.href = 'level3.html';
+                    return;
+                }
+
+                const dialogue = dialogues[currentDialogue];
+                speakerElement.textContent = dialogue.speaker;
+                textElement.textContent = dialogue.text;
+                progressElement.textContent = `${currentDialogue + 1}/${dialogues.length}`;
+
+                // Change character image if specified
+                if (dialogue.characterImage) {
+                    changeCharacterImage(dialogue.characterImage);
+                }
+
+                // Play click sound for new dialogue
+                playSound(clickSound);
+
+                // Clear any existing timer
+                clearTimeout(autoProgressTimer);
+
+                // Set timer for auto-progress if delay is specified
+                if (dialogue.delay) {
+                    autoProgressTimer = setTimeout(() => {
+                        nextDialogue();
+                    }, dialogue.delay);
+                }
+            }
+
+            function nextDialogue() {
+                currentDialogue++;
+                showDialogue();
+            }
+
+            // Event listeners
+            nextBtn.addEventListener('click', () => {
+                playSound(clickSound);
+                nextDialogue();
+            });
+            
+            // Also allow space/enter key to progress
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' || e.code === 'Enter') {
+                    playSound(clickSound);
+                    nextDialogue();
+                }
+            });
+
+            // Start the music when user first interacts
+            document.addEventListener('click', () => {
+                startBackgroundMusic();
+            }, { once: true });
+
+            // Start loading assets
+            loadAssets();
+        </script>
+    </body>
+</html>

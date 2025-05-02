@@ -1,0 +1,49 @@
+{
+  "questions": [
+    {
+      "image": "assets/globe.svg",
+      "answer": "globe",
+      "alternatives": ["world", "earth", "map"]
+    },
+    {
+      "image": "assets/Clock.svg",
+      "answer": "clock",
+      "alternatives": ["watch", "time", "alarm"]
+    },
+    {
+      "image": "assets/Calendar.svg",
+      "answer": "calendar",
+      "alternatives": ["date", "schedule", "planner"]
+    },
+    {
+      "image": "assets/Whiteboard.svg",
+      "answer": "whiteboard",
+      "alternatives": ["board", "markerboard", "dry erase board"]
+    },
+    {
+      "image": "assets/Blackboard.svg",
+      "answer": "blackboard",
+      "alternatives": ["chalkboard", "green board", "writing board"]
+    },
+    {
+      "image": "assets/Teacher Table.svg",
+      "answer": "teacher's desk",
+      "alternatives": ["teacher's table", "instructor's desk", "educator's table"]
+    },
+    {
+      "image": "assets/Bookshelf.svg",
+      "answer": "bookshelf",
+      "alternatives": ["bookcase", "shelf", "library shelf"]
+    },
+    {
+      "image": "assets/Chalk.svg",
+      "answer": "chalk",
+      "alternatives": ["chalk stick", "writing chalk", "school chalk"]
+    },
+    {
+      "image": "assets/Glue.svg",
+      "answer": "glue",
+      "alternatives": ["adhesive", "paste", "sticky substance"]
+    }
+  ]
+}

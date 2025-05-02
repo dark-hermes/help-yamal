@@ -1,321 +1,322 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Find the Object</title>
-        <style>
-            body {
-                margin: 0;
-                overflow: hidden;
-                background-color: #f0f0f0;
-                font-family: Arial, sans-serif;
-            }
-            canvas {
-                display: block;
-                background: #fff;
-                margin: auto;
-                cursor: pointer;
-            }
-            #ui {
-                position: absolute;
-                top: 10px;
-                left: 10px;
-                color: black;
-                background: rgba(255, 255, 255, 0.7);
-                padding: 10px;
-                border-radius: 5px;
-                max-width: 300px;
-            }
-            #itemList {
-                margin-top: 10px;
-                font-weight: bold;
-            }
-            #scoreDisplay {
-                margin-top: 10px;
-                font-size: 1.2em;
-            }
-            .found-item {
-                text-decoration: line-through;
-                color: green;
-            }
-            #audioContainer {
-                display: none; /* Hide audio elements */
-            }
-        </style>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-    </head>
-    <body>
-        <canvas id="gameCanvas"></canvas>
-        <div id="ui">
-            <div id="dialogueBox">Click to start...</div>
-            <div id="itemList"></div>
-            <div id="scoreDisplay">Score: 0</div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HELP YAMAL</title>
+    <style>
+        /* Common Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+        
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        
+        #musicControl {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 200;
+        }
+        
+        /* Home Page Styles */
+        #home-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        #title {
+            font-size: 48px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 40px;
+        }
+        
+        #start-btn {
+            padding: 15px 40px;
+            font-size: 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        #start-btn:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        
+        #level-select {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 80%;
+        }
+        
+        #level-select h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .level-btn {
+            padding: 12px 25px;
+            font-size: 18px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            margin: 10px 0;
+            width: 200px;
+            text-align: center;
+        }
+        
+        .level-btn:hover {
+            background-color: #0b7dda;
+            transform: scale(1.05);
+        }
+        
+        .level-btn.locked {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <!-- Home Screen -->
+    <div id="home-container">
+        <h1 id="title">HELP YAMAL</h1>
+        <button id="start-btn">Start Game</button>
+        
+        <div id="level-select">
+            <h2>Select Level</h2>
+            <button class="level-btn" data-level="1">Level 1: Find Objects</button>
+            <button class="level-btn" data-level="2">Level 2: Name Objects</button>
+            <button class="level-btn" data-level="3">Level 3: Solve Riddles</button>
         </div>
+    </div>
+    
+    <div id="musicControl">🔈 Music: ON</div>
 
-        <!-- Audio elements for sound effects -->
-        <div id="audioContainer">
-            <audio id="clickSound" src="assets/audio/click.mp3" preload="auto"></audio>
-            <audio id="foundSound" src="assets/audio/found.mp3" preload="auto"></audio>
-        </div>
+    <!-- Audio elements -->
+    <div id="audioContainer">
+        <audio id="clickSound" src="assets/audio/click.mp3" preload="auto"></audio>
+        <audio id="backgroundMusic" src="assets/audio/bgm.mp3" preload="auto" loop></audio>
+    </div>
 
-        <script>
-            // Game elements
-            const canvas = document.getElementById("gameCanvas");
-            const ctx = canvas.getContext("2d");
-            const dialogueBox = document.getElementById("dialogueBox");
-            const itemListDisplay = document.getElementById("itemList");
-            const scoreDisplay = document.getElementById("scoreDisplay");
-            const clickSound = document.getElementById("clickSound");
-            const foundSound = document.getElementById("foundSound");
+    <script>
+        // Game elements
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const homeContainer = document.getElementById('home-container');
+        const startBtn = document.getElementById('start-btn');
+        const levelSelect = document.getElementById('level-select');
+        const levelBtns = document.querySelectorAll('.level-btn');
+        const musicControl = document.getElementById('musicControl');
+        
+        // Audio elements
+        const clickSound = document.getElementById('clickSound');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        
+        // Game state
+        let allFurniture = [];
+        let bgImage = new Image();
+        let musicOn = true;
+        let unlockedLevels = [1]; // Start with level 1 unlocked
 
-            // Game state
-            let gameState = "prologue";
-            let dialogueIndex = 0;
-            let startTime;
-            let score = 0;
-            let wrongClicks = 0;
-            let itemsToFind = [];
-            let allFurniture = [];
-            let bgImage = new Image();
-            let loadedImages = 0;
-            let totalImagesToLoad = 0;
+        // Initialize canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            drawScene();
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
 
-            // Game constants
-            const DIALOGUES = [
-                "Hey! Can you help me find my stuff?",
-                "I lost a few things in the classroom.",
-                "Please find: ",
-            ];
-            const ITEMS_TO_FIND_COUNT = 5;
-            const ZOOM_SCALE = 3;
-            const ZOOM_DURATION = 1;
+        // Play sound function
+        function playSound(sound) {
+            if (!musicOn) return;
+            sound.currentTime = 0;
+            sound.play().catch(e => console.log("Sound playback prevented:", e));
+        }
 
-            // Initialize canvas size
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                if (gameState !== "prologue") drawScene();
+        // Background music control
+        function toggleMusic() {
+            musicOn = !musicOn;
+            if (musicOn) {
+                backgroundMusic.play();
+                musicControl.textContent = "🔈 Music: ON";
+            } else {
+                backgroundMusic.pause();
+                musicControl.textContent = "🔇 Music: OFF";
             }
-            window.addEventListener("resize", resizeCanvas);
-            resizeCanvas();
+        }
 
-            // Play sound function
-            function playSound(sound) {
-                sound.currentTime = 0; // Rewind to start
-                sound.play().catch(e => console.log("Sound playback prevented:", e));
-            }
+        musicControl.addEventListener("click", toggleMusic);
 
-            // Load game assets
-            function loadGameAssets() {
-                fetch("furniture.json")
-                    .then((response) => response.json())
-                    .then((data) => {
-                        allFurniture = data.furniture;
-                        totalImagesToLoad = allFurniture.length + 1; // +1 for background
-
-                        // Load background image
-                        bgImage.src = "assets/classroom.png";
-                        bgImage.onload = imageLoaded;
-
-                        // Load furniture images
-                        allFurniture.forEach((item) => {
-                            item.img = new Image();
-                            item.img.src = item.src;
-                            item.img.onload = imageLoaded;
-                            item.found = false;
-                        });
-
-                        // Select random items to find
-                        const playableItems = allFurniture.filter(
-                            (item) => item.playable
-                        );
-                        itemsToFind = getRandomItems(
-                            playableItems,
-                            ITEMS_TO_FIND_COUNT
-                        );
-                    })
-                    .catch((err) =>
-                        console.error("Failed to load furniture data:", err)
-                    );
-            }
-
-            function imageLoaded() {
-                loadedImages++;
-                if (loadedImages === totalImagesToLoad) {
-                    // All images loaded
-                    initializeGame();
-                }
-            }
-
-            function getRandomItems(items, count) {
-                const shuffled = [...items].sort(() => 0.5 - Math.random());
-                return shuffled.slice(0, count);
-            }
-
-            function initializeGame() {
-                updateDialogue();
-                drawScene();
-            }
-
-            function updateDialogue() {
-                if (dialogueIndex >= DIALOGUES.length) {
-                    startGame();
-                    return;
-                }
-
-                if (dialogueIndex === 2) {
-                    dialogueBox.textContent =
-                        DIALOGUES[dialogueIndex] +
-                        itemsToFind.map((i) => i.name).join(", ");
-                } else {
-                    dialogueBox.textContent = DIALOGUES[dialogueIndex];
-                }
-                dialogueIndex++;
-            }
-
-            function drawScene() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                // Draw background
-                if (bgImage.complete) {
-                    ctx.drawImage(
-                        bgImage,
-                        0,
-                        0,
-                        canvas.width,
-                        canvas.height
-                    );
-                }
-
-                // Draw furniture
-                allFurniture.forEach((item) => {
-                    if (!itemsToFind.includes(item) || !item.found) {
-                        ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
-                    }
-                });
-
-                // // Highlight found items
-                // itemsToFind.forEach((item) => {
-                //     if (item.found) {
-                //         ctx.strokeStyle = "green";
-                //         ctx.lineWidth = 3;
-                //         ctx.strokeRect(item.x, item.y, item.w, item.h);
-                //     }
-                // });
-            }
-
-            function updateItemList() {
-                itemListDisplay.innerHTML = itemsToFind
-                    .map(
-                        (item) =>
-                            `<span class="${
-                                item.found ? "found-item" : ""
-                            }">${item.name}</span>`
-                    )
-                    .join(", ");
-            }
-
-            function handleItemClick(item) {
-                // Play found sound
-                playSound(foundSound);
-                
-                item.found = true;
-                updateItemList();
-
-                // Create a clone of the item for animation
-                const animItem = { ...item };
-                
-                // Animate the item
-                gsap.to(animItem, {
-                    duration: ZOOM_DURATION,
-                    x: canvas.width / 2 - (animItem.w * ZOOM_SCALE) / 2,
-                    y: canvas.height / 2 - (animItem.h * ZOOM_SCALE) / 2,
-                    width: animItem.w * ZOOM_SCALE,
-                    height: animItem.h * ZOOM_SCALE,
-                    onUpdate: () => {
-                        // Draw the animation frame
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        drawScene();
-                        ctx.drawImage(
-                            animItem.img,
-                            animItem.x,
-                            animItem.y,
-                            animItem.width,
-                            animItem.height
-                        );
-                    },
-                    onComplete: () => {
-                        // Update score and check game completion
-                        score += 100;
-                        scoreDisplay.textContent = `Score: ${score}`;
-                        
-                        if (itemsToFind.every((item) => item.found)) {
-                            endGame();
-                        } else {
-                            drawScene();
-                        }
-                    },
+        // Start background music (after user interaction)
+        function startBackgroundMusic() {
+            if (musicOn) {
+                backgroundMusic.volume = 0.3;
+                backgroundMusic.loop = true;
+                backgroundMusic.play().catch(e => {
+                    console.log("Background music playback prevented:", e);
                 });
             }
+        }
 
-            function startGame() {
-                gameState = "playing";
-                startTime = Date.now();
-                dialogueBox.textContent = "Find the items!";
-                updateItemList();
-                drawScene();
+        // Draw the scene with classroom and furniture
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw background
+            if (bgImage.complete) {
+                ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
             }
 
-            function endGame() {
-                const timeTaken = (Date.now() - startTime) / 1000;
-                score = Math.max(
-                    1000 -
-                        Math.floor(timeTaken * 10) -
-                        (wrongClicks > 2 ? (wrongClicks - 2) * 50 : 0),
-                    0
-                );
-                scoreDisplay.textContent = `Final Score: ${score}`;
-                gameState = "ended";
-                dialogueBox.textContent = `Game Over! You found all items in ${timeTaken.toFixed(
-                    1
-                )} seconds with ${wrongClicks} wrong clicks.`;
-            }
-
-            // Event listeners
-            canvas.addEventListener("click", (e) => {
-                // Play click sound on any click
-                playSound(clickSound);
-                
-                if (gameState === "prologue") {
-                    updateDialogue();
-                    return;
-                }
-
-                if (gameState !== "playing") return;
-
-                const rect = canvas.getBoundingClientRect();
-                const clickX = e.clientX - rect.left;
-                const clickY = e.clientY - rect.top;
-
-                let clickedItem = itemsToFind.find(
-                    (item) =>
-                        !item.found &&
-                        clickX >= item.x &&
-                        clickX <= item.x + item.w &&
-                        clickY >= item.y &&
-                        clickY <= item.y + item.h
-                );
-
-                if (clickedItem) {
-                    handleItemClick(clickedItem);
-                } else {
-                    wrongClicks++;
+            // Draw furniture
+            allFurniture.forEach(item => {
+                if (item.img && item.img.complete) {
+                    ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
                 }
             });
+        }
 
-            // Start the game
-            loadGameAssets();
-        </script>
-    </body>
+        // Initialize the game
+        function initGame() {
+            // Load background and furniture
+            fetch("furniture.json")
+                .then(response => response.json())
+                .then(data => {
+                    allFurniture = data.furniture;
+
+                    // Load background image
+                    bgImage.src = "assets/classroom.png";
+                    bgImage.onload = () => {
+                        // Load furniture images
+                        allFurniture.forEach(item => {
+                            item.img = new Image();
+                            item.img.src = item.src;
+                            item.img.onload = drawScene;
+                        });
+                        drawScene();
+                    };
+                })
+                .catch(err => {
+                    console.error("Failed to load furniture data:", err);
+                    // Still show the home screen if furniture fails to load
+                    bgImage.src = "assets/classroom.png";
+                    bgImage.onload = drawScene;
+                });
+            
+            // Set up event listeners
+            startBtn.addEventListener('click', showLevelSelect);
+            
+            levelBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const level = parseInt(this.getAttribute('data-level'));
+                    startLevel(level);
+                });
+            });
+
+            // Update level buttons based on unlocked levels
+            updateLevelButtons();
+
+            // Start music on first interaction
+            document.addEventListener('click', () => {
+                startBackgroundMusic();
+            }, { once: true });
+        }
+        
+        // Show level selection
+        function showLevelSelect() {
+            playSound(clickSound);
+            startBtn.style.display = 'none';
+            levelSelect.style.display = 'flex';
+        }
+        
+        // Update which levels are unlocked
+        function updateLevelButtons() {
+            levelBtns.forEach(btn => {
+                const level = parseInt(btn.getAttribute('data-level'));
+                if (!unlockedLevels.includes(level)) {
+                    btn.classList.add('locked');
+                } else {
+                    btn.classList.remove('locked');
+                }
+            });
+        }
+        
+        // Start the selected level
+        function startLevel(level) {
+            playSound(clickSound);
+            // Save unlocked levels to localStorage
+            localStorage.setItem('unlockedLevels', JSON.stringify(unlockedLevels));
+            
+            // Redirect to the appropriate level
+            switch(level) {
+                case 1:
+                    window.location.href = "prologue.html";
+                    break;
+                case 2:
+                    window.location.href = "level2.html";
+                    break;
+                case 3:
+                    window.location.href = "level3.html";
+                    break;
+                default:
+                    window.location.href = "prologue.html";
+            }
+        }
+        
+        // Check for previously unlocked levels
+        function checkUnlockedLevels() {
+            const savedLevels = localStorage.getItem('unlockedLevels');
+            if (savedLevels) {
+                unlockedLevels = JSON.parse(savedLevels);
+            }
+        }
+        
+        // Start the game when the page loads
+        window.onload = function() {
+            checkUnlockedLevels();
+            initGame();
+        };
+    </script>
+</body>
 </html>

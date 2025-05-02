@@ -298,7 +298,7 @@
       "playable": true
     },
     {
-      "name": "Colorful Paper",
+      "name": "Colorful Paperclip",
       "x": 1030,
       "y": 670,
       "w": 12,
@@ -307,7 +307,7 @@
       "playable": true
     },
     {
-      "name": "Silver Paper",
+      "name": "Silver Paperclip",
       "x": 1010,
       "y": 679,
       "w": 10,
@@ -343,7 +343,7 @@
       "playable": true
     },
     {
-      "name": "Glue2",
+      "name": "Glue",
       "x": 690,
       "y": 675,
       "w": 10,
@@ -406,7 +406,7 @@
       "playable": true
     },
     {
-      "name": "Brown Highlighter",
+      "name": "Blue Highlighter",
       "x": 1015,
       "y": 806,
       "w": 17,

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name the Object</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+            background: #fff;
+            margin: auto;
+        }
+        #musicControl {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 200;
+        }
+        #game-ui {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            color: #333;
+            text-align: center;
+            z-index: 100;
+        }
+        #speaker {
+            font-weight: bold;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        #object-image {
+            max-width: 300px;
+            max-height: 300px;
+            margin: 10px auto;
+            border: 3px solid #4CAF50;
+            border-radius: 5px;
+            display: none;
+        }
+        #question-text {
+            font-size: 1.2em;
+            margin: 10px 0;
+            min-height: 20px;
+        }
+        #answer-input {
+            padding: 10px 15px;
+            font-size: 16px;
+            width: 80%;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        #submit-btn, #next-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 5px;
+        }
+        #submit-btn {
+            background-color: #4CAF50;
+        }
+        #submit-btn:hover {
+            background-color: #45a049;
+        }
+        #next-btn {
+            background-color: #2196F3;
+            display: none;
+        }
+        #next-btn:hover {
+            background-color: #0b7dda;
+        }
+        #feedback {
+            font-size: 18px;
+            margin: 10px 0;
+            min-height: 20px;
+            font-weight: bold;
+        }
+        #score-display {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+            z-index: 200;
+        }
+        #timer-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            z-index: 200;
+        }
+        #progress {
+            margin-top: 10px;
+            color: #666;
+        }
+        .score-popup {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            animation: scorePop 1.5s forwards;
+            pointer-events: none;
+            z-index: 150;
+        }
+        @keyframes scorePop {
+            0% { transform: scale(0.5); opacity: 0; }
+            30% { transform: scale(1.2); opacity: 1; }
+            70% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; top: -50px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="score-display">SCORE: 0</div>
+    <div id="timer-display">Time: 0.0s</div>
+    <div id="musicControl">🔈 Music: ON</div>
+    
+    <div id="game-ui">
+        <div id="speaker">ME</div>
+        <img id="object-image" src="" alt="Object to identify">
+        <div id="question-text">Loading game...</div>
+        <input type="text" id="answer-input" placeholder="Type your answer here..." autocomplete="off" disabled>
+        <button id="submit-btn" disabled>Submit</button>
+        <div id="feedback"></div>
+        <button id="next-btn">Next</button>
+        <div id="progress">Question: 0/5</div>
+    </div>
+
+    <!-- Audio elements -->
+    <div id="audioContainer">
+        <audio id="clickSound" src="assets/audio/click.mp3" preload="auto"></audio>
+        <audio id="backgroundMusic" src="assets/audio/bgm.mp3" preload="auto" loop></audio>
+        <audio id="correctSound" src="assets/audio/correct.mp3" preload="auto"></audio>
+        <audio id="wrongSound" src="assets/audio/wrong.mp3" preload="auto"></audio>
+        <audio id="congratsSound" src="assets/audio/congrats.mp3" preload="auto"></audio>
+    </div>
+
+    <script>
+        // Game elements
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const objectImage = document.getElementById('object-image');
+        const questionText = document.getElementById('question-text');
+        const answerInput = document.getElementById('answer-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreDisplay = document.getElementById('score-display');
+        const timerDisplay = document.getElementById('timer-display');
+        const speakerDisplay = document.getElementById('speaker');
+        const progressDisplay = document.getElementById('progress');
+        const musicControl = document.getElementById('musicControl');
+        
+        // Audio elements
+        const clickSound = document.getElementById('clickSound');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const correctSound = document.getElementById('correctSound');
+        const wrongSound = document.getElementById('wrongSound');
+        const congratsSound = document.getElementById('congratsSound');
+        
+        // Game state
+        let allFurniture = [];
+        let bgImage = new Image();
+        let score = 0;
+        let currentQuestionIndex = 0;
+        let startTime;
+        let timerInterval;
+        let selectedQuestions = [];
+        let gameActive = false;
+        let musicOn = true;
+        let totalQuestions = 5;
+        
+        // Game constants
+        const BASE_SCORE = 100;
+        const TIME_PENALTY_PER_SECOND = 2;
+        const MAX_TIME = 30;
+
+        // Initialize canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            drawScene();
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        // Play sound function
+        function playSound(sound) {
+            if (!musicOn) return;
+            sound.currentTime = 0;
+            sound.play().catch(e => console.log("Sound playback prevented:", e));
+        }
+
+        // Background music control
+        function toggleMusic() {
+            musicOn = !musicOn;
+            if (musicOn) {
+                backgroundMusic.play();
+                musicControl.textContent = "🔈 Music: ON";
+            } else {
+                backgroundMusic.pause();
+                musicControl.textContent = "🔇 Music: OFF";
+            }
+        }
+
+        musicControl.addEventListener("click", toggleMusic);
+
+        // Start background music (after user interaction)
+        function startBackgroundMusic() {
+            if (musicOn) {
+                backgroundMusic.volume = 0.3;
+                backgroundMusic.loop = true;
+                backgroundMusic.play().catch(e => {
+                    console.log("Background music playback prevented:", e);
+                });
+            }
+        }
+
+        // Initialize the game
+        function initGame() {
+            // First load the background and furniture
+            fetch("furniture.json")
+                .then(response => response.json())
+                .then(data => {
+                    allFurniture = data.furniture;
+
+                    // Load background image
+                    bgImage.src = "assets/classroom.png";
+                    bgImage.onload = () => {
+                        // Load furniture images
+                        allFurniture.forEach(item => {
+                            item.img = new Image();
+                            item.img.src = item.src;
+                            item.img.onload = drawScene;
+                        });
+                        drawScene();
+                        
+                        // Then load the questions
+                        fetch("level2_questions.json")
+                            .then(response => response.json())
+                            .then(data => {
+                                // Select 5 random questions
+                                selectedQuestions = getRandomQuestions(data.questions, totalQuestions);
+                                
+                                // Enable input and button
+                                answerInput.disabled = false;
+                                submitBtn.disabled = false;
+                                
+                                // Start the first question
+                                startQuestion();
+                            })
+                            .catch(error => {
+                                console.error('Error loading questions:', error);
+                                questionText.textContent = "Failed to load questions. Please try again.";
+                            });
+                    };
+                })
+                .catch(err => {
+                    console.error("Failed to load furniture data:", err);
+                    // Load questions even if furniture fails
+                    fetch("level2_questions.json")
+                        .then(response => response.json())
+                        .then(data => {
+                            selectedQuestions = getRandomQuestions(data.questions, totalQuestions);
+                            answerInput.disabled = false;
+                            submitBtn.disabled = false;
+                            startQuestion();
+                        })
+                        .catch(error => {
+                            console.error('Error loading questions:', error);
+                            questionText.textContent = "Failed to load game data. Please try again.";
+                        });
+                });
+            
+            // Set up event listeners
+            submitBtn.addEventListener('click', checkAnswer);
+            nextBtn.addEventListener('click', startNextQuestion);
+            
+            // Also allow Enter key to submit
+            answerInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkAnswer();
+                }
+            });
+
+            // Start music on first interaction
+            document.addEventListener('click', () => {
+                startBackgroundMusic();
+            }, { once: true });
+        }
+        
+        // Draw the scene with furniture
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw background
+            if (bgImage.complete) {
+                ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+            }
+
+            // Draw furniture
+            allFurniture.forEach(item => {
+                if (item.img && item.img.complete) {
+                    ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
+                }
+            });
+        }
+
+        // Get random questions from the pool
+        function getRandomQuestions(questions, count) {
+            const shuffled = [...questions];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled.slice(0, count);
+        }
+        
+        // Start a new question
+        function startQuestion() {
+            if (currentQuestionIndex >= selectedQuestions.length) {
+                endGame();
+                return;
+            }
+            
+            const question = selectedQuestions[currentQuestionIndex];
+            
+            // Update progress
+            progressDisplay.textContent = `Question: ${currentQuestionIndex + 1}/${totalQuestions}`;
+            
+            // Reset UI
+            objectImage.src = question.image;
+            objectImage.style.display = 'block';
+            questionText.textContent = "What's the name of this object?";
+            answerInput.value = '';
+            answerInput.style.display = 'block';
+            submitBtn.style.display = 'block';
+            feedback.textContent = '';
+            feedback.style.color = '';
+            nextBtn.style.display = 'none';
+            
+            // Focus the input field
+            answerInput.focus();
+            
+            // Start timer
+            startTime = Date.now();
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 100);
+            
+            gameActive = true;
+        }
+        
+        // Update the timer display
+        function updateTimer() {
+            const currentTime = Date.now();
+            const elapsedTime = (currentTime - startTime) / 1000;
+            timerDisplay.textContent = `Time: ${elapsedTime.toFixed(1)}s`;
+        }
+        
+        // Check the player's answer
+        function checkAnswer() {
+            if (!gameActive) return;
+            
+            clearInterval(timerInterval);
+            gameActive = false;
+            
+            const currentTime = Date.now();
+            const elapsedTime = (currentTime - startTime) / 1000;
+            const question = selectedQuestions[currentQuestionIndex];
+            
+            // Normalize the answer
+            const playerAnswer = answerInput.value.trim().toLowerCase();
+            
+            // Check if answer is correct
+            const isCorrect = playerAnswer === question.answer.toLowerCase() || 
+                              question.alternatives.map(a => a.toLowerCase()).includes(playerAnswer);
+            
+            if (isCorrect) {
+                // Calculate score based on time
+                const timeBonus = Math.max(0, BASE_SCORE - Math.floor(elapsedTime * TIME_PENALTY_PER_SECOND));
+                score += timeBonus;
+                scoreDisplay.textContent = `SCORE: ${score}`;
+                
+                // Show feedback
+                feedback.textContent = "Correct!";
+                feedback.style.color = "green";
+                
+                // Play correct sound
+                playSound(correctSound);
+                
+                // Show score popup
+                createScorePopup(timeBonus);
+            } else {
+                // Wrong answer
+                feedback.textContent = `Incorrect! The answer was "${question.answer}".`;
+                feedback.style.color = "red";
+                
+                // Play wrong sound
+                playSound(wrongSound);
+            }
+            
+            // Show next button
+            answerInput.style.display = 'none';
+            submitBtn.style.display = 'none';
+            nextBtn.style.display = 'block';
+        }
+        
+        // Create a score popup animation
+        function createScorePopup(amount) {
+            const popup = document.createElement('div');
+            popup.className = 'score-popup';
+            popup.textContent = `+${amount}`;
+            popup.style.left = `${Math.random() * 300 + 200}px`;
+            popup.style.top = '200px';
+            document.body.appendChild(popup);
+            
+            setTimeout(() => {
+                popup.remove();
+            }, 1500);
+        }
+        
+        // Start the next question
+        function startNextQuestion() {
+            playSound(clickSound);
+            currentQuestionIndex++;
+            startQuestion();
+        }
+        
+        // End the game
+        function endGame() {
+            // Play congratulations sound
+            playSound(congratsSound);
+            
+            // Hide game elements
+            objectImage.style.display = 'none';
+            questionText.textContent = "Game Completed!";
+            answerInput.style.display = 'none';
+            submitBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+            
+            // Show final score
+            feedback.textContent = `Your final score is ${score}!`;
+            feedback.style.color = "#4CAF50";
+            feedback.style.fontSize = "20px";
+            
+            // Redirect to next level after delay
+            setTimeout(() => {
+                window.location.href = "level2end.html";
+            }, 30000);
+        }
+        
+        // Start the game when the page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>

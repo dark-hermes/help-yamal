@@ -1,0 +1,70 @@
+{
+  "dialogues": [
+    {
+      "speaker": "ME",
+      "text": "Ahh... Such a normal life again. It’s been a while since summer holiday. I really miss my friend so much.",
+      "characterImage": null,
+      "delay": 999999999
+    },
+    {
+      "speaker": "ME",
+      "text": "Ah.. there is Yamal, He is one of my friend. It’s rare to see him this early!",
+      "characterImage": "assets/Boy2.2.svg",
+      "delay": 999999999
+    },
+    {
+      "speaker": "ME",
+      "text": "He looks confused... Lemme talk to him..",
+      "characterImage": "assets/Boy2.2.svg",
+      "delay": 999999999
+    },
+    {
+      "speaker": "ME",
+      "text": "Hi Yamal!",
+      "characterImage": "assets/Boy2.2.svg",
+      "delay": 999999999
+    },
+    {
+      "speaker": "YAMAL",
+      "text": "Oh! Hi! I’m glad you’re here!",
+      "characterImage": "assets/Boy1.svg",
+      "delay": 999999999
+    },
+    {
+      "speaker": "ME",
+      "text": "What’s wrong? You look confused as true!",
+      "characterImage": "assets/Boy1.svg",
+      "delay": 999999999
+    },
+    {
+      "speaker": "YAMAL",
+      "text": "Hehe.. Sorry to take your time before.. I’m having trouble finding my things.",
+      "characterImage": "assets/Boy2.2.svg",
+      "delay": 999999999
+    },
+    {
+      "speaker": "YAMAL",
+      "text": "Can you help me look for them from this list? I’d be really happy if you could!",
+      "characterImage": "assets/Boy2.svg",
+      "delay": 999999999
+    },
+    {
+      "speaker": "ME",
+      "text": "Sure thing! We still got times before the class start. What should I find?!",
+      "characterImage": "assets/Boy2.svg",
+      "delay": 999999999
+    },
+    {
+      "speaker": "YAMAL",
+      "text": "Oh... alright, I thought you were my REAL friend. I guess i have to check it by myself",
+      "characterImage": "assets/Boy2.2.svg",
+      "delay": 999999999
+    },
+    {
+      "speaker": "YAMAL",
+      "text": "Thank you.. I owe you one! Here’s a list of the things I’m trying to find. Hope you can help—good luck!",
+      "characterImage": "assets/Boy2.svg",
+      "delay": 999999999
+    }
+  ]
+}

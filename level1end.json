@@ -1,0 +1,28 @@
+{
+  "dialogues": [
+    {
+      "speaker": "YAMAL",
+      "text": "Yeay! You really did it! Thanks to you, i can prepare for my test well!",
+      "characterImage": "assets/Boy2.2.svg",
+      "delay": 999999999
+    },
+    {
+      "speaker": "ME",
+      "text": "Huh? What test!?",
+      "characterImage": "assets/Boy2.2.svg",
+      "delay": 999999999
+    },
+    {
+      "speaker": "YAMAL",
+      "text": "Huh? You don’t know that Ma’am Irma will give us an English Test soon? Smh..",
+      "characterImage": "assets/Boy2.2.svg",
+      "delay": 999999999
+    },
+    {
+      "speaker": "YAMAL",
+      "text": "Then i shall give you a exercise then!",
+      "characterImage": "assets/Boy2.2.svg",
+      "delay": 999999999
+    }
+  ]
+}

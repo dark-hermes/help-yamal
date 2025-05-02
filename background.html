@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Classroom Layout</title>
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+                background-color: #f0f0f0;
+                font-family: Arial, sans-serif;
+            }
+            canvas {
+                display: block;
+                background: #fff;
+                margin: auto;
+                cursor: pointer;
+            }
+            #musicControl {
+                position: absolute;
+                bottom: 10px;
+                left: 10px;
+                background: rgba(255, 255, 255, 0.7);
+                padding: 5px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="gameCanvas"></canvas>
+        <div id="musicControl">🔈 Music: ON</div>
+
+        <!-- Audio elements for sound effects -->
+        <div id="audioContainer">
+            <audio id="clickSound" src="assets/audio/click.mp3" preload="auto"></audio>
+            <audio id="backgroundMusic" src="assets/audio/bgm.mp3" preload="auto" loop></audio>
+        </div>
+
+        <script>
+            // Canvas setup
+            const canvas = document.getElementById("gameCanvas");
+            const ctx = canvas.getContext("2d");
+            const clickSound = document.getElementById("clickSound");
+            const backgroundMusic = document.getElementById("backgroundMusic");
+            const musicControl = document.getElementById("musicControl");
+
+            // Game state
+            let allFurniture = [];
+            let bgImage = new Image();
+            let musicOn = true;
+
+            // Initialize canvas size
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                drawScene();
+            }
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
+
+            // Play sound function
+            function playSound(sound) {
+                if (!musicOn) return;
+                sound.currentTime = 0; // Rewind to start
+                sound.play().catch(e => console.log("Sound playback prevented:", e));
+            }
+
+            // Background music control
+            function toggleMusic() {
+                musicOn = !musicOn;
+                if (musicOn) {
+                    backgroundMusic.play();
+                    musicControl.textContent = "🔈 Music: ON";
+                } else {
+                    backgroundMusic.pause();
+                    musicControl.textContent = "🔇 Music: OFF";
+                }
+            }
+
+            musicControl.addEventListener("click", toggleMusic);
+
+            // Start background music (after user interaction)
+            function startBackgroundMusic() {
+                if (musicOn) {
+                    backgroundMusic.volume = 0.3;
+                    backgroundMusic.loop = true;
+                    backgroundMusic.play().catch(e => {
+                        console.log("Background music playback prevented:", e);
+                    });
+                }
+            }
+
+            // Load game assets
+            function loadAssets() {
+                fetch("furniture.json")
+                    .then((response) => response.json())
+                    .then((data) => {
+                        allFurniture = data.furniture;
+
+                        // Load background image
+                        bgImage.src = "assets/classroom.png";
+                        bgImage.onload = () => {
+                            // Load furniture images
+                            allFurniture.forEach((item) => {
+                                item.img = new Image();
+                                item.img.src = item.src;
+                                item.img.onload = drawScene;
+                            });
+                            drawScene();
+                        };
+                    })
+                    .catch((err) =>
+                        console.error("Failed to load furniture data:", err)
+                    );
+            }
+
+            function drawScene() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw background
+                if (bgImage.complete) {
+                    ctx.drawImage(
+                        bgImage,
+                        0, 0,
+                        canvas.width,
+                        canvas.height
+                    );
+                }
+
+                // Draw furniture
+                allFurniture.forEach((item) => {
+                    if (item.img && item.img.complete) {
+                        ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
+                    }
+                });
+            }
+
+            // Event listeners
+            canvas.addEventListener("click", (e) => {
+                playSound(clickSound);
+            });
+
+            // Start the music when user first interacts
+            document.addEventListener('click', () => {
+                startBackgroundMusic();
+            }, { once: true });
+
+            // Start loading assets
+            loadAssets();
+        </script>
+    </body>
+</html>

@@ -34,13 +34,49 @@
             #scoreDisplay {
                 margin-top: 10px;
                 font-size: 1.2em;
+                font-weight: bold;
+            }
+            #timerDisplay {
+                margin-top: 10px;
+                font-size: 1.2em;
+                font-weight: bold;
             }
             .found-item {
                 text-decoration: line-through;
                 color: green;
             }
             #audioContainer {
-                display: none; /* Hide audio elements */
+                display: none;
+            }
+            #musicControl {
+                position: absolute;
+                bottom: 10px;
+                left: 10px;
+                background: rgba(255, 255, 255, 0.7);
+                padding: 5px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+            .score-popup {
+                position: absolute;
+                font-size: 24px;
+                font-weight: bold;
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+                z-index: 100;
+                pointer-events: none;
+                animation: scorePop 2s forwards;
+            }
+            @keyframes scorePop {
+                0% { transform: scale(0.5); opacity: 0; }
+                30% { transform: scale(1.2); opacity: 1; }
+                70% { transform: scale(1.2); opacity: 1; }
+                100% { transform: scale(1); opacity: 0; top: -50px; }
+            }
+            .positive-score {
+                color: #4CAF50;
+            }
+            .negative-score {
+                color: #F44336;
             }
         </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
@@ -51,12 +87,17 @@
             <div id="dialogueBox">Click to start...</div>
             <div id="itemList"></div>
             <div id="scoreDisplay">Score: 0</div>
+            <div id="timerDisplay">Time: 0.0s</div>
         </div>
+        <div id="musicControl">🔈 Music: ON</div>
 
         <!-- Audio elements for sound effects -->
         <div id="audioContainer">
             <audio id="clickSound" src="assets/audio/click.mp3" preload="auto"></audio>
             <audio id="foundSound" src="assets/audio/found.mp3" preload="auto"></audio>
+            <audio id="wrongSound" src="assets/audio/wrong.mp3" preload="auto"></audio>
+            <audio id="congratsSound" src="assets/audio/congrats.mp3" preload="auto"></audio>
+            <audio id="backgroundMusic" src="assets/audio/bgm.mp3" preload="auto" loop></audio>
         </div>
 
         <script>
@@ -66,8 +107,13 @@
             const dialogueBox = document.getElementById("dialogueBox");
             const itemListDisplay = document.getElementById("itemList");
             const scoreDisplay = document.getElementById("scoreDisplay");
+            const timerDisplay = document.getElementById("timerDisplay");
             const clickSound = document.getElementById("clickSound");
             const foundSound = document.getElementById("foundSound");
+            const wrongSound = document.getElementById("wrongSound");
+            const congratsSound = document.getElementById("congratsSound");
+            const backgroundMusic = document.getElementById("backgroundMusic");
+            const musicControl = document.getElementById("musicControl");
 
             // Game state
             let gameState = "prologue";
@@ -80,16 +126,22 @@
             let bgImage = new Image();
             let loadedImages = 0;
             let totalImagesToLoad = 0;
+            let musicOn = true;
+            let gameTimer;
+            let elapsedTime = 0;
 
             // Game constants
             const DIALOGUES = [
-                "Hey! Can you help me find my stuff?",
-                "I lost a few things in the classroom.",
-                "Please find: ",
+                "YAMAL: There's some items I need to find in this classroom.",
             ];
             const ITEMS_TO_FIND_COUNT = 5;
             const ZOOM_SCALE = 3;
             const ZOOM_DURATION = 1;
+            const BASE_SCORE = 100;
+            const TIME_PENALTY = 10; // Points lost per second
+            const WRONG_CLICK_PENALTY = 50;
+            const WRONG_CLICK_THRESHOLD = 3;
+            const REDIRECT_DELAY = 30000; // 3 seconds before redirect
 
             // Initialize canvas size
             function resizeCanvas() {
@@ -102,17 +154,66 @@
 
             // Play sound function
             function playSound(sound) {
-                sound.currentTime = 0; // Rewind to start
+                if (!musicOn) return;
+                sound.currentTime = 0;
                 sound.play().catch(e => console.log("Sound playback prevented:", e));
+            }
+
+            // Background music control
+            function toggleMusic() {
+                musicOn = !musicOn;
+                if (musicOn) {
+                    backgroundMusic.play();
+                    musicControl.textContent = "🔈 Music: ON";
+                } else {
+                    backgroundMusic.pause();
+                    musicControl.textContent = "🔇 Music: OFF";
+                }
+            }
+
+            musicControl.addEventListener("click", toggleMusic);
+
+            // Start background music
+            function startBackgroundMusic() {
+                if (musicOn) {
+                    backgroundMusic.volume = 0.3;
+                    backgroundMusic.loop = true;
+                    backgroundMusic.play().catch(e => {
+                        console.log("Background music playback prevented:", e);
+                        dialogueBox.textContent = "Click to enable sound...";
+                    });
+                }
+            }
+
+            // Create score popup animation
+            function createScorePopup(amount, x, y, isPositive = true) {
+                const popup = document.createElement('div');
+                popup.className = `score-popup ${isPositive ? 'positive-score' : 'negative-score'}`;
+                popup.textContent = `${isPositive ? '+' : '-'}${amount}`;
+                popup.style.left = `${x}px`;
+                popup.style.top = `${y}px`;
+                document.body.appendChild(popup);
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                    popup.remove();
+                }, 2000);
+            }
+
+            // Update timer display
+            function updateTimer() {
+                const currentTime = Date.now();
+                elapsedTime = (currentTime - startTime) / 1000;
+                timerDisplay.textContent = `Time: ${elapsedTime.toFixed(1)}s`;
             }
 
             // Load game assets
             function loadGameAssets() {
-                fetch("prolog.json")
+                fetch("furniture.json")
                     .then((response) => response.json())
                     .then((data) => {
                         allFurniture = data.furniture;
-                        totalImagesToLoad = allFurniture.length + 1; // +1 for background
+                        totalImagesToLoad = allFurniture.length + 1;
 
                         // Load background image
                         bgImage.src = "assets/classroom.png";
@@ -143,7 +244,6 @@
             function imageLoaded() {
                 loadedImages++;
                 if (loadedImages === totalImagesToLoad) {
-                    // All images loaded
                     initializeGame();
                 }
             }
@@ -195,7 +295,7 @@
                     }
                 });
 
-                // // Highlight found items
+                // Highlight found items
                 // itemsToFind.forEach((item) => {
                 //     if (item.found) {
                 //         ctx.strokeStyle = "green";
@@ -216,12 +316,21 @@
                     .join(", ");
             }
 
-            function handleItemClick(item) {
+            function handleItemClick(item, clickX, clickY) {
                 // Play found sound
                 playSound(foundSound);
                 
                 item.found = true;
                 updateItemList();
+
+                // Calculate score with time penalty
+                const timeBonus = Math.max(0, 500 - Math.floor(elapsedTime * TIME_PENALTY));
+                const scoreAdded = BASE_SCORE + timeBonus;
+                score += scoreAdded;
+                
+                // Create score popup at click location
+                createScorePopup(scoreAdded, clickX, clickY);
+                scoreDisplay.textContent = `Score: ${score}`;
 
                 // Create a clone of the item for animation
                 const animItem = { ...item };
@@ -246,10 +355,7 @@
                         );
                     },
                     onComplete: () => {
-                        // Update score and check game completion
-                        score += 100;
-                        scoreDisplay.textContent = `Score: ${score}`;
-                        
+                        // Check game completion
                         if (itemsToFind.every((item) => item.found)) {
                             endGame();
                         } else {
@@ -259,27 +365,58 @@
                 });
             }
 
+            function handleWrongClick(clickX, clickY) {
+                wrongClicks++;
+                playSound(wrongSound);
+                
+                // Apply penalty if threshold is reached
+                if (wrongClicks > WRONG_CLICK_THRESHOLD) {
+                    const penalty = WRONG_CLICK_PENALTY;
+                    score = Math.max(0, score - penalty);
+                    scoreDisplay.textContent = `Score: ${score}`;
+                    createScorePopup(penalty, clickX, clickY, false);
+                    
+                    // Show warning message
+                    dialogueBox.textContent = `Wrong click! -${penalty} points!`;
+                    setTimeout(() => {
+                        if (gameState === "playing") {
+                            dialogueBox.textContent = "Find the items!";
+                        }
+                    }, 1500);
+                }
+            }
+
             function startGame() {
                 gameState = "playing";
                 startTime = Date.now();
                 dialogueBox.textContent = "Find the items!";
                 updateItemList();
                 drawScene();
+                startBackgroundMusic();
+                
+                // Start game timer
+                gameTimer = setInterval(updateTimer, 100);
             }
 
             function endGame() {
-                const timeTaken = (Date.now() - startTime) / 1000;
-                score = Math.max(
-                    1000 -
-                        Math.floor(timeTaken * 10) -
-                        (wrongClicks > 2 ? (wrongClicks - 2) * 50 : 0),
-                    0
-                );
-                scoreDisplay.textContent = `Final Score: ${score}`;
+                clearInterval(gameTimer);
+                
+                // Play congratulations sound
+                playSound(congratsSound);
+                
+                // Calculate final score with penalties
+                const timePenalty = Math.floor(elapsedTime * TIME_PENALTY);
+                const wrongClickPenalty = Math.max(0, wrongClicks - WRONG_CLICK_THRESHOLD) * WRONG_CLICK_PENALTY;
+                const finalScore = Math.max(0, score - wrongClickPenalty);
+                
+                scoreDisplay.textContent = `Final Score: ${finalScore}`;
                 gameState = "ended";
-                dialogueBox.textContent = `Game Over! You found all items in ${timeTaken.toFixed(
-                    1
-                )} seconds with ${wrongClicks} wrong clicks.`;
+                dialogueBox.textContent = `Congratulations! You found all items in ${elapsedTime.toFixed(1)} seconds!`;
+                
+                // Redirect to next page after delay
+                setTimeout(() => {
+                    window.location.href = "level1end.html";
+                }, REDIRECT_DELAY);
             }
 
             // Event listeners
@@ -308,9 +445,9 @@
                 );
 
                 if (clickedItem) {
-                    handleItemClick(clickedItem);
+                    handleItemClick(clickedItem, e.clientX, e.clientY);
                 } else {
-                    wrongClicks++;
+                    handleWrongClick(e.clientX, e.clientY);
                 }
             });
 
