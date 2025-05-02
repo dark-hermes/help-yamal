@@ -81,6 +81,7 @@
             let loadedImages = 0;
             let totalImagesToLoad = 0;
 
+
             // Game constants
             const DIALOGUES = [
                 "Hey! Can you help me find my stuff?",
@@ -106,9 +107,48 @@
                 sound.play().catch(e => console.log("Sound playback prevented:", e));
             }
 
+            const question = [
+                {
+                    name: "Score",
+                    x: 1500,
+                    y: 30,
+                    w: 320,
+                    h: 100,
+                    img: new Image(),
+                    src: "assets/Score.svg",
+                },
+                {
+                    name: "Without Question",
+                    x: 200,
+                    y: 720,
+                    w: 1620,
+                    h: 250,
+                    img: new Image(),
+                    src: "assets/Without question.svg",
+                },
+                {
+                    name: "Globe1",
+                    x: 850,
+                    y: 100,
+                    w: 300,
+                    h: 550,
+                    img: new Image(),
+                    src: "assets/globe.svg",
+                },
+                {
+                    name: "Answer",
+                    x: 730,
+                    y: 580,
+                    w: 630,
+                    h: 100,
+                    img: new Image(),
+                    src: "assets/Answer.svg",
+                },
+            ];
+
             // Load game assets
             function loadGameAssets() {
-                fetch("answer.json")
+                fetch("furniture.json")
                     .then((response) => response.json())
                     .then((data) => {
                         allFurniture = data.furniture;
@@ -124,6 +164,11 @@
                             item.img.src = item.src;
                             item.img.onload = imageLoaded;
                             item.found = false;
+                        });
+
+                        question.forEach(q => {
+                             q.img.src = q.src;
+                            q.img.onload = imageLoaded;
                         });
 
                         // Select random items to find
@@ -193,6 +238,10 @@
                     if (!itemsToFind.includes(item) || !item.found) {
                         ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
                     }
+                });
+
+                question.forEach(q => {
+                    ctx.drawImage(q.img, q.x, q.y, q.w, q.h);
                 });
 
                 // // Highlight found items

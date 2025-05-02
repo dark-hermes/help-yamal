@@ -107,33 +107,33 @@
                 sound.play().catch(e => console.log("Sound playback prevented:", e));
             }
 
-            const question = [
-            {
+            const prolog = [
+                {
                     name: "Score",
                     x: 1500,
                     y: 30,
-                    w:320,
+                    w: 320,
                     h: 100,
                     img: new Image(),
                     src: "assets/Score.svg",
                 },
                 {
-                    name: "Without Question",
-                    x: 200,
-                    y: 780,
-                    w: 1620,
-                    h: 199,
+                    name: "Boy",
+                    x: 750,
+                    y: 150,
+                    w: 500,
+                    h: 800,
                     img: new Image(),
-                    src: "assets/Without question.svg",
+                    src: "assets/Boy1.svg",
                 },
                 {
-                    name: "Globe1",
-                    x: 850,
-                    y: 100,
-                    w: 300,
-                    h: 550,
+                    name: "Without Question",
+                    x: 200,
+                    y: 720,
+                    w: 1620,
+                    h: 250,
                     img: new Image(),
-                    src: "assets/globe.svg",
+                    src: "assets/Without question.svg",
                 },
             ];
 
@@ -157,7 +157,7 @@
                             item.found = false;
                         });
 
-                        question.forEach(q => {
+                        prolog.forEach(q => {
                              q.img.src = q.src;
                             q.img.onload = imageLoaded;
                         });
@@ -231,7 +231,7 @@
                     }
                 });
 
-                question.forEach(q => {
+                prolog.forEach(q => {
                     ctx.drawImage(q.img, q.x, q.y, q.w, q.h);
                 });
 
