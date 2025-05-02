@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 192.41">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#linear-gradient-2);
+      }
+
+      .cls-2 {
+        fill: #5f431a;
+      }
+
+      .cls-3 {
+        isolation: isolate;
+      }
+
+      .cls-4 {
+        fill: url(#linear-gradient-6);
+      }
+
+      .cls-4, .cls-5, .cls-6 {
+        mix-blend-mode: screen;
+      }
+
+      .cls-5 {
+        fill: url(#linear-gradient-5);
+      }
+
+      .cls-7 {
+        clip-path: url(#clippath-1);
+      }
+
+      .cls-6 {
+        fill: url(#linear-gradient-8);
+      }
+
+      .cls-8 {
+        fill: url(#linear-gradient-9);
+      }
+
+      .cls-8, .cls-9, .cls-10 {
+        mix-blend-mode: multiply;
+      }
+
+      .cls-9 {
+        opacity: .5;
+      }
+
+      .cls-11 {
+        clip-path: url(#clippath);
+      }
+
+      .cls-12 {
+        fill: none;
+      }
+
+      .cls-13 {
+        fill: url(#linear-gradient-3);
+      }
+
+      .cls-14 {
+        fill: #1a1a1a;
+      }
+
+      .cls-10 {
+        fill: url(#linear-gradient-7);
+      }
+
+      .cls-15 {
+        fill: url(#linear-gradient);
+      }
+
+      .cls-16 {
+        fill: url(#linear-gradient-4);
+      }
+    </style>
+    <clipPath id="clippath">
+      <rect class="cls-12" width="320" height="192.41"/>
+    </clipPath>
+    <linearGradient id="linear-gradient" x1="3.85" y1="192.41" x2="3.85" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#c5a76d"/>
+      <stop offset=".5" stop-color="#d4ae74"/>
+      <stop offset="1" stop-color="#c5a76d"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-2" x1="316.15" x2="316.15" xlink:href="#linear-gradient"/>
+    <linearGradient id="linear-gradient-3" x1="0" y1="3.85" x2="320" y2="3.85" xlink:href="#linear-gradient"/>
+    <linearGradient id="linear-gradient-4" x1="0" y1="188.56" x2="320" y2="188.56" xlink:href="#linear-gradient"/>
+    <linearGradient id="linear-gradient-5" x1="160" y1="2.89" x2="160" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset=".11" stop-color="#000"/>
+      <stop offset=".77" stop-color="#e3c78a"/>
+      <stop offset=".79" stop-color="#dcc185"/>
+      <stop offset=".82" stop-color="#c9b07a"/>
+      <stop offset=".86" stop-color="#aa9567"/>
+      <stop offset=".9" stop-color="#7e6f4d"/>
+      <stop offset=".95" stop-color="#473e2b"/>
+      <stop offset="1" stop-color="#040302"/>
+      <stop offset="1" stop-color="#000"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-6" x1="160" y1="187.6" x2="160" y2="184.71" xlink:href="#linear-gradient-5"/>
+    <linearGradient id="linear-gradient-7" x1="160" y1="192.41" x2="160" y2="189.52" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset=".05" stop-color="#e8e1d1"/>
+      <stop offset=".11" stop-color="#d3c4a6"/>
+      <stop offset=".16" stop-color="#c3b087"/>
+      <stop offset=".2" stop-color="#baa374"/>
+      <stop offset=".23" stop-color="#b79f6e"/>
+      <stop offset=".89" stop-color="#fff"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-8" x1="-57.41" y1="-880.34" x2="-57.41" y2="-883.23" gradientTransform="translate(375.97 977.99)" xlink:href="#linear-gradient-5"/>
+    <linearGradient id="linear-gradient-9" x1="-57.41" y1="-563.23" x2="-57.41" y2="-566.12" gradientTransform="translate(58.86 660.88)" xlink:href="#linear-gradient-7"/>
+    <clipPath id="clippath-1">
+      <path class="cls-12" d="m0,0v192.41h320V0H0Zm7.7,184.71V7.7h304.61v177.02H7.7Z"/>
+    </clipPath>
+  </defs>
+  <g class="cls-3">
+    <g id="Layer_2" data-name="Layer 2">
+      <g id="Blackboard">
+        <g class="cls-11">
+          <rect class="cls-14" x="71.49" y="-56.1" width="177.02" height="304.61" transform="translate(256.21 -63.79) rotate(90)"/>
+          <path class="cls-2" d="m7.7,7.7v177.02h304.61V7.7H7.7Zm302.81,175.22H9.49V9.49h301.02v173.43Z"/>
+          <g>
+            <polygon class="cls-15" points="7.7 7.7 0 0 0 192.41 7.7 184.71 7.7 7.7"/>
+            <polygon class="cls-1" points="320 0 312.3 7.7 312.3 7.7 312.3 184.71 320 192.41 320 0 320 0"/>
+            <polygon class="cls-13" points="312.3 7.7 320 0 0 0 7.7 7.7 312.3 7.7"/>
+            <polygon class="cls-16" points="7.7 184.71 0 192.41 320 192.41 312.3 184.71 7.7 184.71"/>
+          </g>
+          <g>
+            <rect class="cls-5" width="320" height="2.89"/>
+            <polygon class="cls-4" points="315.17 187.6 4.84 187.6 7.67 184.71 312.33 184.71 315.17 187.6"/>
+            <rect class="cls-10" y="189.52" width="320" height="2.89"/>
+            <rect class="cls-6" x="222.35" y="94.76" width="192.41" height="2.89" transform="translate(414.76 -222.35) rotate(90)"/>
+            <rect class="cls-8" x="-94.76" y="94.76" width="192.41" height="2.89" transform="translate(97.65 94.76) rotate(90)"/>
+          </g>
+          <g class="cls-7">
+            <g>
+              <image class="cls-9" width="11" height="12" transform="translate(-.42 -1.22)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAMCAYAAAC0qUeeAAAACXBIWXMAAAsSAAALEgHS3X78AAAAjklEQVQokWP4////fwYiAdOtK6cZyhPtiNNw+9rZ//dvXfpfmexInAaQ4sf3b/yvTnUmTgNI8fPHd//XprsRpwGk+PWLx//rMj2I0wBS/P7Ni/8N2d7EaQAp/vzx3f+mPF/iNIAUf/v6+X9LQQBxGkCKf/36+b+tKJg4DSDF//79+5/gKkOcBpBiBgYGBgDwxmMDCHq6xAAAAABJRU5ErkJggg=="/>
+              <image class="cls-9" width="11" height="11" transform="translate(-.42 181.78)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsSAAALEgHS3X78AAAALElEQVQYlWMgBvz///9/gqvMfyZCakEKiTYRZuqoQvIVgsC/f/+IU8jAwAAA0S5dNK2a7oEAAAAASUVORK5CYII="/>
+              <image class="cls-9" width="11" height="12" transform="translate(309.58 -1.22)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAMCAYAAAC0qUeeAAAACXBIWXMAAAsSAAALEgHS3X78AAAAY0lEQVQokWMgFvz///8/IzFqQQpBNEHFMIU3Lp0grBAErpw99J8ohRdP7iVO4dmjO4hTeOrgFuIUHtu7njiFh3euIk7hzcun8Cv89+8fcQoZGBiYTTXFGkAMdV0z/BHEwMAAAIjIaidDT3ofAAAAAElFTkSuQmCC"/>
+              <image class="cls-9" width="11" height="11" transform="translate(309.58 181.78)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsSAAALEgHS3X78AAAAa0lEQVQYlWNIcJX5314S+p+BGHDz8qn/d66f+99aGEScBpDiB7cv/2/ODyBOA0jxkwc3iXcSSPGLJ/eI1wBS/OblE+I1gBR/ePuSeA0gxZ8/vSdeA0jx929fiNcAUvz79y/iNYAU//v37z8AAypjEUaMm4gAAAAASUVORK5CYII="/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
