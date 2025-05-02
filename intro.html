@@ -9,719 +9,263 @@
                 margin: 0;
                 overflow: hidden;
                 background-color: #f0f0f0;
+                font-family: Arial, sans-serif;
             }
             canvas {
                 display: block;
                 background: #fff;
                 margin: auto;
+                cursor: pointer;
             }
             #ui {
                 position: absolute;
                 top: 10px;
                 left: 10px;
                 color: black;
-                font-family: sans-serif;
+                background: rgba(255, 255, 255, 0.7);
+                padding: 10px;
+                border-radius: 5px;
+                max-width: 300px;
             }
             #itemList {
                 margin-top: 10px;
+                font-weight: bold;
+            }
+            #scoreDisplay {
+                margin-top: 10px;
+                font-size: 1.2em;
+            }
+            .found-item {
+                text-decoration: line-through;
+                color: green;
+            }
+            #audioContainer {
+                display: none; /* Hide audio elements */
             }
         </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     </head>
     <body>
-        <canvas id="gameCanvas" width="1600" height="1000"></canvas>
+        <canvas id="gameCanvas"></canvas>
         <div id="ui">
-            <div id="dialogueBox"></div>
+            <div id="dialogueBox">Click to start...</div>
             <div id="itemList"></div>
             <div id="scoreDisplay">Score: 0</div>
         </div>
 
+        <!-- Audio elements for sound effects -->
+        <div id="audioContainer">
+            <audio id="clickSound" src="assets/audio/click.mp3" preload="auto"></audio>
+            <audio id="foundSound" src="assets/audio/found.mp3" preload="auto"></audio>
+        </div>
+
         <script>
+            // Game elements
             const canvas = document.getElementById("gameCanvas");
             const ctx = canvas.getContext("2d");
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
             const dialogueBox = document.getElementById("dialogueBox");
             const itemListDisplay = document.getElementById("itemList");
             const scoreDisplay = document.getElementById("scoreDisplay");
+            const clickSound = document.getElementById("clickSound");
+            const foundSound = document.getElementById("foundSound");
 
+            // Game state
             let gameState = "prologue";
             let dialogueIndex = 0;
             let startTime;
             let score = 0;
             let wrongClicks = 0;
+            let itemsToFind = [];
+            let allFurniture = [];
+            let bgImage = new Image();
+            let loadedImages = 0;
+            let totalImagesToLoad = 0;
 
-            const dialogues = [
+            // Game constants
+            const DIALOGUES = [
                 "Hey! Can you help me find my stuff?",
                 "I lost a few things in the classroom.",
-                "Please find: Blue Book, Pencil, Ruler, Eraser, Watch.",
+                "Please find: ",
             ];
+            const ITEMS_TO_FIND_COUNT = 5;
+            const ZOOM_SCALE = 3;
+            const ZOOM_DURATION = 1;
 
-            const itemsToFind = [];
+            // Initialize canvas size
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                if (gameState !== "prologue") drawScene();
+            }
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
 
-            const furniture1 = [
-                {
-                    name: "White Board",
-                    x: 700,
-                    y: 370,
-                    w: 340,
-                    h: 190,
-                    img: new Image(),
-                    src: "assets/Whiteboard.svg",
-                },
-                {
-                    name: "Black Board",
-                    x: 1080,
-                    y: 370,
-                    w: 300,
-                    h: 190,
-                    img: new Image(),
-                    src: "assets/Blackboard 1.svg",
-                },
-                {
-                    name: "Teacher's Desk",
-                    x: 1120,
-                    y: 510,
-                    w: 280,
-                    h: 190,
-                    img: new Image(),
-                    src: "assets/Teacher Table.svg",
-                },
-                {
-                    name: "Calendar",
-                    x: 590,
-                    y: 370,
-                    w: 96,
-                    h: 140,
-                    img: new Image(),
-                    src: "assets/Calendar.svg",
-                },
-                {
-                    name: "Globe",
-                    x: 450,
-                    y: 370,
-                    w: 60,
-                    h: 80,
-                    img: new Image(),
-                    src: "assets/globe.svg",
-                },
-                {
-                    name: "Bookshelf",
-                    x: 440,
-                    y: 448,
-                    w: 130,
-                    h: 210,
-                    img: new Image(),
-                    src: "assets/Bookshelf.svg",
-                },
-                {
-                    name: "Clock",
-                    x: 920,
-                    y: 270,
-                    w: 60,
-                    h: 60,
-                    img: new Image(),
-                    src: "assets/Clock.svg",
-                },
-                {
-                    name: "Table1",
-                    x: 320,
-                    y: 664,
-                    w: 230,
-                    h: 150,
-                    img: new Image(),
-                    src: "assets/YC_L.svg",
-                },
-                {
-                    name: "Chair1",
-                    x: 380,
-                    y: 670,
-                    w: 110,
-                    h: 170,
-                    img: new Image(),
-                    src: "assets/Light brown chair.svg",
-                },
+            // Play sound function
+            function playSound(sound) {
+                sound.currentTime = 0; // Rewind to start
+                sound.play().catch(e => console.log("Sound playback prevented:", e));
+            }
 
-                {
-                    name: "Table2",
-                    x: 660,
-                    y: 664,
-                    w: 230,
-                    h: 150,
-                    img: new Image(),
-                    src: "assets/YC_LC.svg",
-                },
-                {
-                    name: "Chair2",
-                    x: 726,
-                    y: 670,
-                    w: 110,
-                    h: 170,
-                    img: new Image(),
-                    src: "assets/Light brown chair.svg",
-                },
+            // Load game assets
+            function loadGameAssets() {
+                fetch("intro.json")
+                    .then((response) => response.json())
+                    .then((data) => {
+                        allFurniture = data.furniture;
+                        totalImagesToLoad = allFurniture.length + 1; // +1 for background
 
-                {
-                    name: "Table3",
-                    x: 1000,
-                    y: 664,
-                    w: 230,
-                    h: 150,
-                    img: new Image(),
-                    src: "assets/YC_RC.svg",
-                },
-                {
-                    name: "Chair3",
-                    x: 1060,
-                    y: 670,
-                    w: 110,
-                    h: 170,
-                    img: new Image(),
-                    src: "assets/Light brown chair.svg",
-                },
+                        // Load background image
+                        bgImage.src = "assets/classroom.png";
+                        bgImage.onload = imageLoaded;
 
-                {
-                    name: "Table4",
-                    x: 1340,
-                    y: 664,
-                    w: 230,
-                    h: 150,
-                    img: new Image(),
-                    src: "assets/YC_R.svg",
-                },
-                {
-                    name: "Chair4",
-                    x: 1400,
-                    y: 670,
-                    w: 110,
-                    h: 170,
-                    img: new Image(),
-                    src: "assets/Light brown chair.svg",
-                },
-                {
-                    name: "Chalk",
-                    x: 1342,
-                    y: 543,
-                    w: 30,
-                    h: 10,
-                    img: new Image(),
-                    src: "assets/Chalk.svg",
-                },
-                {
-                    name: "Board Eraser",
-                    x: 1110,
-                    y: 538,
-                    w: 40,
-                    h: 15,
-                    img: new Image(),
-                    src: "assets/Board eraser.svg",
-                },
-                {
-                    name: "Black Marker",
-                    x: 770,
-                    y: 540,
-                    w:70,
-                    h: 13,
-                    img: new Image(),
-                    src: "assets/Black marker.svg",
-                },
-                {
-                    name: "Blue Marker",
-                    x: 845,
-                    y: 540,
-                    w:70,
-                    h: 13,
-                    img: new Image(),
-                    src: "assets/Blue marker.svg",
-                },
-                {
-                    name: "Red Marker",
-                    x: 800,
-                    y: 530,
-                    w:70,
-                    h: 13,
-                    img: new Image(),
-                    src: "assets/Red marker.svg",
-                },
-                {
-                    name: "Black Eraser",
-                    x: 1360,
-                    y: 670,
-                    w:19,
-                    h: 16,
-                    img: new Image(),
-                    src: "assets/Black rounded eraser.svg",
-                },
-                {
-                    name: "White Eraser",
-                    x: 1380,
-                    y: 686,
-                    w:10,
-                    h: 25,
-                    img: new Image(),
-                    src: "assets/Cube white eraser.svg",
-                },
-                {
-                    name: "Blue Sticky Note",
-                    x: 1170,
-                    y: 670,
-                    w: 13,
-                    h: 13,
-                    img: new Image(),
-                    src: "assets/Light blue SN.svg",
-                },
-                {
-                    name: "Green Sticky Note",
-                    x: 1185,
-                    y: 670,
-                    w: 13,
-                    h: 13,
-                    img: new Image(),
-                    src: "assets/Light green SN.svg",
-                },
-                {
-                    name: "Yellow Sticky Note",
-                    x: 1175,
-                    y: 690,
-                    w: 13,
-                    h: 13,
-                    img: new Image(),
-                    src: "assets/Light yellow SN.svg",
-                },
-                {
-                    name: "Colorful Paper",
-                    x: 1030,
-                    y: 670,
-                    w:12,
-                    h: 20,
-                    img: new Image(),
-                    src: "assets/Colorful paper clip.svg",
-                },
-                {
-                    name: "Silver Paper",
-                    x: 1010,
-                    y: 679,
-                    w:10,
-                    h: 20,
-                    img: new Image(),
-                    src: "assets/Silver paper clip.svg",
-                },
-                {
-                    name: "Classic Sharpener",
-                    x: 865,
-                    y: 675,
-                    w:15,
-                    h: 20,
-                    img: new Image(),
-                    src: "assets/sharpener.svg",
-                },
-                {
-                    name: "Modern Sharpener",
-                    x: 840,
-                    y: 680,
-                    w:20,
-                    h: 20,
-                    img: new Image(),
-                    src: "assets/modern sharpener.svg",
-                },
-                {
-                    name: "Paper Glue",
-                    x: 710,
-                    y: 675,
-                    w:6,
-                    h: 23,
-                    img: new Image(),
-                    src: "assets/Paper glue.svg",
-                },
-                {
-                    name: "Glue2",
-                    x: 690,
-                    y: 675,
-                    w:10,
-                    h: 25,
-                    img: new Image(),
-                    src: "assets/Glue.svg",
-                },
-                {
-                    name: "Red Textbook",
-                    x: 495,
-                    y: 667,
-                    w:40,
-                    h: 40,
-                    img: new Image(),
-                    src: "assets/Red textbook.svg",
-                },
-                {
-                    name: "Yellow Textbook",
-                    x: 500,
-                    y: 660,
-                    w:35,
-                    h: 35,
-                    img: new Image(),
-                    src: "assets/Yellow textbook.svg",
-                },
-            ];
+                        // Load furniture images
+                        allFurniture.forEach((item) => {
+                            item.img = new Image();
+                            item.img.src = item.src;
+                            item.img.onload = imageLoaded;
+                            item.found = false;
+                        });
 
-            const furniture2 = [
-                {
-                    name: "Table5",
-                    x: 240,
-                    y: 800,
-                    w: 250,
-                    h: 170,
-                    img: new Image(),
-                    src: "assets/YC_L.svg",
-                },
-                {
-                    name: "Chair5",
-                    x: 300,
-                    y: 810,
-                    w: 130,
-                    h: 190,
-                    img: new Image(),
-                    src: "assets/Light brown chair.svg",
-                },
+                        // Select random items to find
+                        const playableItems = allFurniture.filter(
+                            (item) => item.playable
+                        );
+                        itemsToFind = getRandomItems(
+                            playableItems,
+                            ITEMS_TO_FIND_COUNT
+                        );
+                    })
+                    .catch((err) =>
+                        console.error("Failed to load furniture data:", err)
+                    );
+            }
 
-                {
-                    name: "Table6",
-                    x: 630,
-                    y: 800,
-                    w: 250,
-                    h: 170,
-                    img: new Image(),
-                    src: "assets/YC_LC.svg",
-                },
-                {
-                    name: "Chair6",
-                    x: 696,
-                    y: 810,
-                    w: 130,
-                    h: 190,
-                    img: new Image(),
-                    src: "assets/Light brown chair.svg",
-                },
-
-                {
-                    name: "Table7",
-                    x: 1010,
-                    y: 800,
-                    w: 250,
-                    h: 170,
-                    img: new Image(),
-                    src: "assets/YC_RC.svg",
-                },
-                {
-                    name: "Chair7",
-                    x: 1070,
-                    y: 810,
-                    w: 130,
-                    h: 190,
-                    img: new Image(),
-                    src: "assets/Light brown chair.svg",
-                },
-
-                {
-                    name: "Table8",
-                    x: 1400,
-                    y: 800,
-                    w: 250,
-                    h: 170,
-                    img: new Image(),
-                    src: "assets/YC_R.svg",
-                },
-                {
-                    name: "Chair8",
-                    x: 1464,
-                    y: 810,
-                    w: 130,
-                    h: 190,
-                    img: new Image(),
-                    src: "assets/Light brown chair.svg",
-                },
-                {
-                    name: "Paper Tape",
-                    x: 1425,
-                    y: 810,
-                    w:13,
-                    h: 15,
-                    img: new Image(),
-                    src: "assets/Paper tape.svg",
-                },
-                {
-                    name: "Brown Tape",
-                    x: 1430,
-                    y: 830,
-                    w:13,
-                    h: 15,
-                    img: new Image(),
-                    src: "assets/Brown tape.svg",
-                },
-                {
-                    name: "Purple HL",
-                    x: 1050,
-                    y: 805 ,
-                    w:17,
-                    h: 13,
-                    img: new Image(),
-                    src: "assets/Purple HL.svg",
-                },
-                {
-                    name: "Orange HL",
-                    x: 1030,
-                    y: 810,
-                    w:17,
-                    h: 13,
-                    img: new Image(),
-                    src: "assets/Orange HL.svg",
-                },
-                {
-                    name: "Brown HL",
-                    x: 1015,
-                    y: 806,
-                    w:17,
-                    h: 13,
-                    img: new Image(),
-                    src: "assets/Dark blue HL.svg",
-                },
-                {
-                    name: "Neon HL",
-                    x: 1017,
-                    y: 830,
-                    w:17,
-                    h: 13,
-                    img: new Image(),
-                    src: "assets/Neon HL.svg",
-                },
-                {
-                    name: "Green Crayon",
-                    x: 868,
-                    y: 805,
-                    w:8,
-                    h: 40,
-                    img: new Image(),
-                    src: "assets/Green crayon.svg",
-                },
-                {
-                    name: "Red Crayon ",
-                    x: 856,
-                    y: 805,
-                    w:8,
-                    h: 40,
-                    img: new Image(),
-                    src: "assets/Red crayon.svg",
-                },
-                {
-                    name: "Brown Crayon ",
-                    x: 845,
-                    y: 805,
-                    w:8,
-                    h: 40,
-                    img: new Image(),
-                    src: "assets/Brown crayon.svg",
-                },
-                {
-                    name: "Blue Crayon ",
-                    x: 833,
-                    y: 805,
-                    w:8,
-                    h: 40,
-                    img: new Image(),
-                    src: "assets/Blue crayon.svg",
-                },
-                {
-                    name: "Clicking Pen",
-                    x: 680,
-                    y: 805,
-                    w:8,
-                    h: 45,
-                    img: new Image(),
-                    src: "assets/clicking pen.svg",
-                },
-                {
-                    name: "Pen With Cap",
-                    x: 665,
-                    y: 805,
-                    w:8,
-                    h: 45,
-                    img: new Image(),
-                    src: "assets/pen with cap.svg",
-                },
-                {
-                    name: "Blue Textbook",
-                    x: 435,
-                    y: 805,
-                    w:40,
-                    h: 45,
-                    img: new Image(),
-                    src: "assets/Blue textbook.svg",
-                },
-                {
-                    name: "Blue Pencil",
-                    x: 285,
-                    y: 810,
-                    w:3,
-                    h: 35,
-                    img: new Image(),
-                    src: "assets/blue pencil.svg",
-                },
-                {
-                    name: "Black Pencil",
-                    x: 275,
-                    y: 810,
-                    w:3,
-                    h: 35,
-                    img: new Image(),
-                    src: "assets/black pencil with eraser.svg",
-                }, 
-            ];
-
-            const prolog = [
-                //Score
-                // {
-                //     name: "Score",
-                //     x: 1500,
-                //     y: 30,
-                //     w:320,
-                //     h: 100,
-                //     img: new Image(),
-                //     src: "assets/Score.svg",
-                // },
-                {
-                    name: "Boy",
-                    x: 750,
-                    y: 150,
-                    w: 450,
-                    h: 800,
-                    img: new Image(),
-                    src: "assets/Boy2.svg",
-                },
-                {
-                    name: "Button YES",
-                    x: 700,
-                    y: 670,
-                    w: 250,
-                    h: 100,
-                    img: new Image(),
-                    src: "assets/Button Yes.svg",
-                },
-                {
-                    name: "Button NO",
-                    x: 1000,
-                    y: 670,
-                    w: 250,
-                    h: 100,
-                    img: new Image(),
-                    src: "assets/Button No.svg",
-                },
-
-                {
-                    name: "yapping",
-                    x: 200,
-                    y: 780,
-                    w: 1620,
-                    h: 199,
-                    img: new Image(),
-                    src: "assets/Question.svg",
-                },
-                //Column Without Question
-                // {
-                //     name: "Without Question",
-                //     x: 200,
-                //     y: 720,
-                //     w: 1620,
-                //     h: 250,
-                //     img: new Image(),
-                //     src: "assets/Without question.svg",
-                // },
-            ]
-
-            itemsToFind.forEach((item) => (item.img.src = item.src));
-            furniture1.forEach((f) => (f.img.src = f.src));
-            furniture2.forEach((f) => (f.img.src = f.src));
-            prolog.forEach((f) => (f.img.src = f.src));
-
-            const bgImage = new Image();
-            bgImage.src = "assets/classroom.png";
-
-            function drawScene() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-
-                furniture1.forEach((f) => {
-                    ctx.drawImage(f.img, f.x, f.y, f.w, f.h);
-                });
-
-                furniture2.forEach((f) => {
-                    ctx.drawImage(f.img, f.x, f.y, f.w, f.h);
-                });
-                prolog.forEach((f) => {
-                    ctx.drawImage(f.img, f.x, f.y, f.w, f.h);
-                });
-
-                if (gameState === "playing") {
-                    itemsToFind.forEach((item) => {
-                        if (!item.found) {
-                            ctx.drawImage(
-                                item.img,
-                                item.x,
-                                item.y,
-                                item.w,
-                                item.h
-                            );
-                        } else {
-                            ctx.strokeStyle = "green";
-                            ctx.lineWidth = 3;
-                            ctx.strokeRect(item.x, item.y, item.w, item.h);
-                        }
-                    });
+            function imageLoaded() {
+                loadedImages++;
+                if (loadedImages === totalImagesToLoad) {
+                    // All images loaded
+                    initializeGame();
                 }
             }
 
+            function getRandomItems(items, count) {
+                const shuffled = [...items].sort(() => 0.5 - Math.random());
+                return shuffled.slice(0, count);
+            }
+
+            function initializeGame() {
+                updateDialogue();
+                drawScene();
+            }
+
             function updateDialogue() {
-                if (dialogueIndex < dialogues.length) {
-                    dialogueBox.textContent = dialogues[dialogueIndex++];
-                } else {
+                if (dialogueIndex >= DIALOGUES.length) {
                     startGame();
+                    return;
                 }
+
+                if (dialogueIndex === 2) {
+                    dialogueBox.textContent =
+                        DIALOGUES[dialogueIndex] +
+                        itemsToFind.map((i) => i.name).join(", ");
+                } else {
+                    dialogueBox.textContent = DIALOGUES[dialogueIndex];
+                }
+                dialogueIndex++;
+            }
+
+            function drawScene() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw background
+                if (bgImage.complete) {
+                    ctx.drawImage(
+                        bgImage,
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height
+                    );
+                }
+
+                // Draw furniture
+                allFurniture.forEach((item) => {
+                    if (!itemsToFind.includes(item) || !item.found) {
+                        ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
+                    }
+                });
+
+                // // Highlight found items
+                // itemsToFind.forEach((item) => {
+                //     if (item.found) {
+                //         ctx.strokeStyle = "green";
+                //         ctx.lineWidth = 3;
+                //         ctx.strokeRect(item.x, item.y, item.w, item.h);
+                //     }
+                // });
+            }
+
+            function updateItemList() {
+                itemListDisplay.innerHTML = itemsToFind
+                    .map(
+                        (item) =>
+                            `<span class="${
+                                item.found ? "found-item" : ""
+                            }">${item.name}</span>`
+                    )
+                    .join(", ");
+            }
+
+            function handleItemClick(item) {
+                // Play found sound
+                playSound(foundSound);
+                
+                item.found = true;
+                updateItemList();
+
+                // Create a clone of the item for animation
+                const animItem = { ...item };
+                
+                // Animate the item
+                gsap.to(animItem, {
+                    duration: ZOOM_DURATION,
+                    x: canvas.width / 2 - (animItem.w * ZOOM_SCALE) / 2,
+                    y: canvas.height / 2 - (animItem.h * ZOOM_SCALE) / 2,
+                    width: animItem.w * ZOOM_SCALE,
+                    height: animItem.h * ZOOM_SCALE,
+                    onUpdate: () => {
+                        // Draw the animation frame
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        drawScene();
+                        ctx.drawImage(
+                            animItem.img,
+                            animItem.x,
+                            animItem.y,
+                            animItem.width,
+                            animItem.height
+                        );
+                    },
+                    onComplete: () => {
+                        // Update score and check game completion
+                        score += 100;
+                        scoreDisplay.textContent = `Score: ${score}`;
+                        
+                        if (itemsToFind.every((item) => item.found)) {
+                            endGame();
+                        } else {
+                            drawScene();
+                        }
+                    },
+                });
             }
 
             function startGame() {
                 gameState = "playing";
-                dialogueBox.textContent = "";
-                itemListDisplay.innerHTML =
-                    "Find: " + itemsToFind.map((i) => i.name).join(", ");
                 startTime = Date.now();
+                dialogueBox.textContent = "Find the items!";
+                updateItemList();
                 drawScene();
             }
-
-            canvas.addEventListener("click", (e) => {
-                if (gameState !== "playing") return;
-                const rect = canvas.getBoundingClientRect();
-                const clickX = e.clientX - rect.left;
-                const clickY = e.clientY - rect.top;
-
-                let foundItem = false;
-                itemsToFind.forEach((item) => {
-                    if (
-                        !item.found &&
-                        clickX >= item.x &&
-                        clickX <= item.x + item.w &&
-                        clickY >= item.y &&
-                        clickY <= item.y + item.h
-                    ) {
-                        item.found = true;
-                        foundItem = true;
-                    }
-                });
-
-                if (foundItem) {
-                    drawScene();
-                    if (itemsToFind.every((item) => item.found)) {
-                        endGame();
-                    }
-                } else {
-                    wrongClicks++;
-                }
-            });
 
             function endGame() {
                 const timeTaken = (Date.now() - startTime) / 1000;
@@ -731,18 +275,47 @@
                         (wrongClicks > 2 ? (wrongClicks - 2) * 50 : 0),
                     0
                 );
-                scoreDisplay.textContent = "Score: " + score;
+                scoreDisplay.textContent = `Final Score: ${score}`;
                 gameState = "ended";
-                dialogueBox.textContent = "Thanks for your help!";
+                dialogueBox.textContent = `Game Over! You found all items in ${timeTaken.toFixed(
+                    1
+                )} seconds with ${wrongClicks} wrong clicks.`;
             }
 
-            canvas.addEventListener("mousedown", () => {
+            // Event listeners
+            canvas.addEventListener("click", (e) => {
+                // Play click sound on any click
+                playSound(clickSound);
+                
                 if (gameState === "prologue") {
                     updateDialogue();
+                    return;
+                }
+
+                if (gameState !== "playing") return;
+
+                const rect = canvas.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+
+                let clickedItem = itemsToFind.find(
+                    (item) =>
+                        !item.found &&
+                        clickX >= item.x &&
+                        clickX <= item.x + item.w &&
+                        clickY >= item.y &&
+                        clickY <= item.y + item.h
+                );
+
+                if (clickedItem) {
+                    handleItemClick(clickedItem);
+                } else {
+                    wrongClicks++;
                 }
             });
 
-            bgImage.onload = () => drawScene();
+            // Start the game
+            loadGameAssets();
         </script>
     </body>
 </html>
