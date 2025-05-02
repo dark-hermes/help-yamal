@@ -81,6 +81,7 @@
             let loadedImages = 0;
             let totalImagesToLoad = 0;
 
+
             // Game constants
             const DIALOGUES = [
                 "Hey! Can you help me find my stuff?",
@@ -106,9 +107,39 @@
                 sound.play().catch(e => console.log("Sound playback prevented:", e));
             }
 
+            const prolog = [
+                // {
+                //     name: "Score",
+                //     x: 1500,
+                //     y: 30,
+                //     w: 320,
+                //     h: 100,
+                //     img: new Image(),
+                //     src: "assets/Score.svg",
+                // },
+                {
+                    name: "Boy",
+                    x: 750,
+                    y: 150,
+                    w: 500,
+                    h: 800,
+                    img: new Image(),
+                    src: "assets/Boy1.svg",
+                },
+                {
+                    name: "Without Question",
+                    x: 200,
+                    y: 720,
+                    w: 1620,
+                    h: 250,
+                    img: new Image(),
+                    src: "assets/Without question.svg",
+                },
+            ];
+
             // Load game assets
             function loadGameAssets() {
-                fetch("prolog.json")
+                fetch("furniture.json")
                     .then((response) => response.json())
                     .then((data) => {
                         allFurniture = data.furniture;
@@ -124,6 +155,11 @@
                             item.img.src = item.src;
                             item.img.onload = imageLoaded;
                             item.found = false;
+                        });
+
+                        prolog.forEach(q => {
+                             q.img.src = q.src;
+                            q.img.onload = imageLoaded;
                         });
 
                         // Select random items to find
@@ -193,6 +229,10 @@
                     if (!itemsToFind.includes(item) || !item.found) {
                         ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
                     }
+                });
+
+                prolog.forEach(q => {
+                    ctx.drawImage(q.img, q.x, q.y, q.w, q.h);
                 });
 
                 // // Highlight found items

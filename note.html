@@ -81,6 +81,7 @@
             let loadedImages = 0;
             let totalImagesToLoad = 0;
 
+
             // Game constants
             const DIALOGUES = [
                 "Hey! Can you help me find my stuff?",
@@ -106,9 +107,21 @@
                 sound.play().catch(e => console.log("Sound playback prevented:", e));
             }
 
+            const note = [
+            {
+                    name: "Note",
+                    x: 700,
+                    y: 50,
+                    w:600,
+                    h: 900,
+                    img: new Image(),
+                    src: "assets/Note.svg",
+                }
+            ];
+
             // Load game assets
             function loadGameAssets() {
-                fetch("note.json")
+                fetch("furniture.json")
                     .then((response) => response.json())
                     .then((data) => {
                         allFurniture = data.furniture;
@@ -124,6 +137,11 @@
                             item.img.src = item.src;
                             item.img.onload = imageLoaded;
                             item.found = false;
+                        });
+
+                        note.forEach(q => {
+                             q.img.src = q.src;
+                            q.img.onload = imageLoaded;
                         });
 
                         // Select random items to find
@@ -193,6 +211,10 @@
                     if (!itemsToFind.includes(item) || !item.found) {
                         ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
                     }
+                });
+
+                note.forEach(q => {
+                    ctx.drawImage(q.img, q.x, q.y, q.w, q.h);
                 });
 
                 // // Highlight found items
